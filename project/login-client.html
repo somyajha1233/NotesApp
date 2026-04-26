@@ -4,15 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Login - University Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html" style="text-decoration: none; color: inherit;">
+                    <h2>University<span class="nav-logo-accent">Portal</span></h2>
+                </a>
+            </div>
+            
+            <div class="nav-auth">
+                <a href="index.html" class="auth-btn">← Back to Home</a>
+                <a href="register-client.html" class="auth-btn auth-btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
     <div class="auth-container">
         <div class="auth-box">
             <div class="auth-header">
-                <h2>Client Login</h2>
-                <p>Access your student portal</p>
+                <h2>Welcome Back</h2>
+                <p>Sign in to your student account</p>
             </div>
             
             <div id="errorMessage" class="error-message" style="display: none;"></div>
@@ -21,7 +37,7 @@
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" required placeholder="Enter your email">
+                    <input type="email" id="email" required placeholder="you@example.com">
                 </div>
 
                 <div class="form-group">
@@ -30,15 +46,18 @@
                 </div>
 
                 <button type="submit" class="submit-btn" id="loginBtn">
-                    <span id="btnText">Login</span>
+                    <span id="btnText">Sign In</span>
                     <span id="btnLoader" class="loader" style="display: none;"></span>
                 </button>
             </form>
 
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
             <div class="auth-footer">
-                <p>Don't have an account? <a href="register-client.html">Register here</a></p>
-                <p><a href="login-admin.html">Login as Admin</a></p>
-                <p><a href="index.html">Back to Home</a></p>
+                <p>Don't have an account? <a href="register-client.html">Create one now</a></p>
+                <p>Are you an administrator? <a href="login-admin.html">Admin Login</a></p>
             </div>
         </div>
     </div>
@@ -60,7 +79,6 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // Show loader
             btnText.style.display = 'none';
             btnLoader.style.display = 'inline-block';
             errorMessage.style.display = 'none';
@@ -69,7 +87,6 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Check user role
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const userData = userDoc.data();
 

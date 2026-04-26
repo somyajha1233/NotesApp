@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Login - University Portal</title>
+    <title>Admin Login - University Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -11,8 +11,8 @@
     <div class="auth-container">
         <div class="auth-box">
             <div class="auth-header">
-                <h2>Client Login</h2>
-                <p>Access your student portal</p>
+                <h2>Admin Login</h2>
+                <p>Access the administration panel</p>
             </div>
             
             <div id="errorMessage" class="error-message" style="display: none;"></div>
@@ -29,15 +29,15 @@
                     <input type="password" id="password" required placeholder="Enter your password">
                 </div>
 
-                <button type="submit" class="submit-btn" id="loginBtn">
-                    <span id="btnText">Login</span>
+                <button type="submit" class="submit-btn admin-btn" id="loginBtn">
+                    <span id="btnText">Login as Admin</span>
                     <span id="btnLoader" class="loader" style="display: none;"></span>
                 </button>
             </form>
 
             <div class="auth-footer">
-                <p>Don't have an account? <a href="register-client.html">Register here</a></p>
-                <p><a href="login-admin.html">Login as Admin</a></p>
+                <p>Don't have an account? <a href="register-admin.html">Register here</a></p>
+                <p><a href="login-client.html">Login as Client</a></p>
                 <p><a href="index.html">Back to Home</a></p>
             </div>
         </div>
@@ -60,7 +60,6 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // Show loader
             btnText.style.display = 'none';
             btnLoader.style.display = 'inline-block';
             errorMessage.style.display = 'none';
@@ -69,19 +68,18 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Check user role
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const userData = userDoc.data();
 
-                if (userData.role === 'client') {
+                if (userData.role === 'admin') {
                     successMessage.textContent = 'Login successful! Redirecting...';
                     successMessage.style.display = 'block';
                     setTimeout(() => {
-                        window.location.href = 'client-dashboard.html';
+                        window.location.href = 'admin-dashboard.html';
                     }, 1500);
                 } else {
                     await auth.signOut();
-                    throw new Error('Access denied. Please use client credentials.');
+                    throw new Error('Access denied. Admin credentials required.');
                 }
             } catch (error) {
                 btnText.style.display = 'inline';
