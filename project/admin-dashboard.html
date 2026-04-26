@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - University Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Admin Dashboard</h2>
+            </div>
+            <div class="nav-auth">
+                <span id="userEmail" class="user-email"></span>
+                <button id="logoutBtn" class="auth-btn logout-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Admin Panel</h1>
+                <p>Manage universities, faculties, and semesters</p>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" data-tab="universities">Universities</button>
+                <button class="tab-btn" data-tab="faculties">Faculties</button>
+                <button class="tab-btn" data-tab="semesters">Semesters</button>
+            </div>
+
+            <!-- Universities Tab -->
+            <div class="tab-content active" id="universities">
+                <div class="admin-section">
+                    <h2>Add University</h2>
+                    <form id="universityForm" class="admin-form">
+                        <div class="form-group">
+                            <input type="text" id="universityName" placeholder="University Name" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Add University</button>
+                    </form>
+                    
+                    <h3>Existing Universities</h3>
+                    <div id="universitiesList" class="data-list"></div>
+                </div>
+            </div>
+
+            <!-- Faculties Tab -->
+            <div class="tab-content" id="faculties">
+                <div class="admin-section">
+                    <h2>Add Faculty</h2>
+                    <form id="facultyForm" class="admin-form">
+                        <div class="form-group">
+                            <select id="facultyUniversity" required>
+                                <option value="">Select University</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="facultyName" placeholder="Faculty Name" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Add Faculty</button>
+                    </form>
+                    
+                    <h3>Existing Faculties</h3>
+                    <div id="facultiesList" class="data-list"></div>
+                </div>
+            </div>
+
+            <!-- Semesters Tab -->
+            <div class="tab-content" id="semesters">
+                <div class="admin-section">
+                    <h2>Add Semester</h2>
+                    <form id="semesterForm" class="admin-form">
+                        <div class="form-group">
+                            <select id="semesterUniversity" required>
+                                <option value="">Select University</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select id="semesterFaculty" required disabled>
+                                <option value="">Select Faculty</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="semesterName" placeholder="Semester Name (e.g., Fall 2024)" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Add Semester</button>
+                    </form>
+                    
+                    <h3>Existing Semesters</h3>
+                    <div id="semestersList" class="data-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './js/firebase-config.js';
+        import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { 
+            doc, getDoc, collection, getDocs, addDoc, deleteDoc, query, where 
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Auth check
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userData = userDoc.data();
+                
+                if (userData.role !== 'admin') {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                document.getElementById('userEmail').textContent = user.email;
+                initializeDashboard();
+            } else {
+                window.location.href = 'login-admin.html';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        async function initializeDashboard() {
+            loadUniversities();
+            loadUniversitiesForFaculty();
+            loadUniversitiesForSemester();
+            loadFaculties();
+            loadSemesters();
+        }
+
+        // University Management
+        document.getElementById('universityForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('universityName').value;
+            
+            await addDoc(collection(db, 'universities'), {
+                name: name,
+                createdAt: new Date()
+            });
+            
+            document.getElementById('universityName').value = '';
+            loadUniversities();
+            loadUniversitiesForFaculty();
+            loadUniversitiesForSemester();
+        });
+
+        async function loadUniversities() {
+            const list = document.getElementById('universitiesList');
+            list.innerHTML = '';
+            
+            const querySnapshot = await getDocs(collection(db, 'universities'));
+            querySnapshot.forEach((docSnap) => {
+                const div = document.createElement('div');
+                div.className = 'data-item';
+                div.innerHTML = `
+                    <span>${docSnap.data().name}</span>
+                    <button class="delete-btn" onclick="deleteUniversity('${docSnap.id}')">Delete</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.deleteUniversity = async (id) => {
+            if (confirm('Are you sure? This will delete all related faculties and semesters.')) {
+                await deleteDoc(doc(db, 'universities', id));
+                loadUniversities();
+            }
+        };
+
+        async function loadUniversitiesForFaculty() {
+            const select = document.getElementById('facultyUniversity');
+            select.innerHTML = '<option value="">Select University</option>';
+            
+            const querySnapshot = await getDocs(collection(db, 'universities'));
+            querySnapshot.forEach((docSnap) => {
+                const option = document.createElement('option');
+                option.value = docSnap.id;
+                option.textContent = docSnap.data().name;
+                select.appendChild(option);
+            });
+        }
+
+        // Faculty Management
+        document.getElementById('facultyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const universityId = document.getElementById('facultyUniversity').value;
+            const name = document.getElementById('facultyName').value;
+            
+            await addDoc(collection(db, 'faculties'), {
+                name: name,
+                universityId: universityId,
+                createdAt: new Date()
+            });
+            
+            document.getElementById('facultyName').value = '';
+            loadFaculties();
+        });
+
+        async function loadFaculties() {
+            const list = document.getElementById('facultiesList');
+            list.innerHTML = '';
+            
+            const querySnapshot = await getDocs(collection(db, 'faculties'));
+            for (const docSnap of querySnapshot.docs) {
+                const facultyData = docSnap.data();
+                const universityDoc = await getDoc(doc(db, 'universities', facultyData.universityId));
+                
+                const div = document.createElement('div');
+                div.className = 'data-item';
+                div.innerHTML = `
+                    <span>${facultyData.name} (${universityDoc.data()?.name || 'Unknown'})</span>
+                    <button class="delete-btn" onclick="deleteFaculty('${docSnap.id}')">Delete</button>
+                `;
+                list.appendChild(div);
+            }
+        }
+
+        window.deleteFaculty = async (id) => {
+            if (confirm('Are you sure?')) {
+                await deleteDoc(doc(db, 'faculties', id));
+                loadFaculties();
+            }
+        };
+
+        // Semester Management
+        async function loadUniversitiesForSemester() {
+            const select = document.getElementById('semesterUniversity');
+            select.innerHTML = '<option value="">Select University</option>';
+            
+            const querySnapshot = await getDocs(collection(db, 'universities'));
+            querySnapshot.forEach((docSnap) => {
+                const option = document.createElement('option');
+                option.value = docSnap.id;
+                option.textContent = docSnap.data().name;
+                select.appendChild(option);
+            });
+        }
+
+        document.getElementById('semesterUniversity').addEventListener('change', async (e) => {
+            const universityId = e.target.value;
+            const facultySelect = document.getElementById('semesterFaculty');
+            
+            facultySelect.innerHTML = '<option value="">Select Faculty</option>';
+            facultySelect.disabled = !universityId;
+            
+            if (universityId) {
+                const q = query(collection(db, 'faculties'), where('universityId', '==', universityId));
+                const querySnapshot = await getDocs(q);
+                
+                querySnapshot.forEach((docSnap) => {
+                    const option = document.createElement('option');
+                    option.value = docSnap.id;
+                    option.textContent = docSnap.data().name;
+                    facultySelect.appendChild(option);
+                });
+            }
+        });
+
+        document.getElementById('semesterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const universityId = document.getElementById('semesterUniversity').value;
+            const facultyId = document.getElementById('semesterFaculty').value;
+            const name = document.getElementById('semesterName').value;
+            
+            await addDoc(collection(db, 'semesters'), {
+                name: name,
+                facultyId: facultyId,
+                universityId: universityId,
+                createdAt: new Date()
+            });
+            
+            document.getElementById('semesterName').value = '';
+            loadSemesters();
+        });
+
+        async function loadSemesters() {
+            const list = document.getElementById('semestersList');
+            list.innerHTML = '';
+            
+            const querySnapshot = await getDocs(collection(db, 'semesters'));
+            for (const docSnap of querySnapshot.docs) {
+                const semesterData = docSnap.data();
+                const facultyDoc = await getDoc(doc(db, 'faculties', semesterData.facultyId));
+                const universityDoc = await getDoc(doc(db, 'universities', semesterData.universityId));
+                
+                const div = document.createElement('div');
+                div.className = 'data-item';
+                div.innerHTML = `
+                    <span>${semesterData.name} - ${facultyDoc.data()?.name || 'Unknown'} (${universityDoc.data()?.name || 'Unknown'})</span>
+                    <button class="delete-btn" onclick="deleteSemester('${docSnap.id}')">Delete</button>
+                `;
+                list.appendChild(div);
+            }
+        }
+
+        window.deleteSemester = async (id) => {
+            if (confirm('Are you sure?')) {
+                await deleteDoc(doc(db, 'semesters', id));
+                loadSemesters();
+            }
+        };
+    </script>
+</body>
+</html>

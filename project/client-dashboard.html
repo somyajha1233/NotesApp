@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard - University Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Client Dashboard</h2>
+            </div>
+            <div class="nav-auth">
+                <span id="userEmail" class="user-email"></span>
+                <button id="logoutBtn" class="auth-btn logout-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Welcome, Student!</h1>
+                <p>Access your courses and semester information</p>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="card">
+                    <h3>Your Universities</h3>
+                    <select id="universitySelect" class="dropdown-select">
+                        <option value="">Select University</option>
+                    </select>
+                </div>
+
+                <div class="card" id="facultyCard" style="display: none;">
+                    <h3>Your Faculties</h3>
+                    <select id="facultySelect" class="dropdown-select">
+                        <option value="">Select Faculty</option>
+                    </select>
+                </div>
+
+                <div class="card" id="semesterCard" style="display: none;">
+                    <h3>Your Semesters</h3>
+                    <select id="semesterSelect" class="dropdown-select">
+                        <option value="">Select Semester</option>
+                    </select>
+                </div>
+
+                <div class="info-panel" id="infoPanel">
+                    <h3>Quick Stats</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="universityCount">0</div>
+                            <div class="stat-label">Universities</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="facultyCount">0</div>
+                            <div class="stat-label">Faculties</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="semesterCount">0</div>
+                            <div class="stat-label">Semesters</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './js/firebase-config.js';
+        import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { doc, getDoc, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Auth check
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userData = userDoc.data();
+                
+                if (userData.role !== 'client') {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                document.getElementById('userEmail').textContent = user.email;
+                loadUniversities();
+            } else {
+                window.location.href = 'login-client.html';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        });
+
+        // Load universities
+        async function loadUniversities() {
+            const universitySelect = document.getElementById('universitySelect');
+            const querySnapshot = await getDocs(collection(db, 'universities'));
+            
+            document.getElementById('universityCount').textContent = querySnapshot.size;
+            
+            querySnapshot.forEach((doc) => {
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = doc.data().name;
+                universitySelect.appendChild(option);
+            });
+        }
+
+        // University change
+        document.getElementById('universitySelect').addEventListener('change', async (e) => {
+            const universityId = e.target.value;
+            const facultyCard = document.getElementById('facultyCard');
+            const facultySelect = document.getElementById('facultySelect');
+            
+            facultySelect.innerHTML = '<option value="">Select Faculty</option>';
+            document.getElementById('semesterCard').style.display = 'none';
+            
+            if (universityId) {
+                facultyCard.style.display = 'block';
+                const q = query(collection(db, 'faculties'), where('universityId', '==', universityId));
+                const querySnapshot = await getDocs(q);
+                
+                document.getElementById('facultyCount').textContent = querySnapshot.size;
+                
+                querySnapshot.forEach((doc) => {
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = doc.data().name;
+                    facultySelect.appendChild(option);
+                });
+            } else {
+                facultyCard.style.display = 'none';
+            }
+        });
+
+        // Faculty change
+        document.getElementById('facultySelect').addEventListener('change', async (e) => {
+            const facultyId = e.target.value;
+            const semesterCard = document.getElementById('semesterCard');
+            const semesterSelect = document.getElementById('semesterSelect');
+            
+            semesterSelect.innerHTML = '<option value="">Select Semester</option>';
+            
+            if (facultyId) {
+                semesterCard.style.display = 'block';
+                const q = query(collection(db, 'semesters'), where('facultyId', '==', facultyId));
+                const querySnapshot = await getDocs(q);
+                
+                document.getElementById('semesterCount').textContent = querySnapshot.size;
+                
+                querySnapshot.forEach((doc) => {
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = doc.data().name;
+                    semesterSelect.appendChild(option);
+                });
+            } else {
+                semesterCard.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

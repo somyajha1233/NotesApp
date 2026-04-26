@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Portal - Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>University Portal</h2>
+            </div>
+            
+            <div class="nav-dropdowns" id="navDropdowns">
+                <!-- University Dropdown -->
+                <div class="dropdown">
+                    <select id="universitySelect" class="dropdown-select">
+                        <option value="">Select University</option>
+                    </select>
+                </div>
+
+                <!-- Faculty Dropdown (hidden initially) -->
+                <div class="dropdown" id="facultyDropdownContainer" style="display: none;">
+                    <select id="facultySelect" class="dropdown-select">
+                        <option value="">Select Faculty</option>
+                    </select>
+                </div>
+
+                <!-- Semester Dropdown (hidden initially) -->
+                <div class="dropdown" id="semesterDropdownContainer" style="display: none;">
+                    <select id="semesterSelect" class="dropdown-select">
+                        <option value="">Select Semester</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="nav-auth">
+                <a href="login-client.html" class="auth-btn">Client Login</a>
+                <a href="login-admin.html" class="auth-btn admin-btn">Admin Login</a>
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <div class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-dropdowns">
+                <select id="universitySelectMobile" class="dropdown-select">
+                    <option value="">Select University</option>
+                </select>
+                <select id="facultySelectMobile" class="dropdown-select" style="display: none;">
+                    <option value="">Select Faculty</option>
+                </select>
+                <select id="semesterSelectMobile" class="dropdown-select" style="display: none;">
+                    <option value="">Select Semester</option>
+                </select>
+            </div>
+            <div class="mobile-auth">
+                <a href="login-client.html" class="auth-btn">Client Login</a>
+                <a href="login-admin.html" class="auth-btn admin-btn">Admin Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">Welcome to University Portal</h1>
+            <p class="hero-subtitle">
+                Access comprehensive information about universities, faculties, 
+                and semester programs all in one place.
+            </p>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🎓</div>
+                    <h3>Universities</h3>
+                    <p>Browse through various universities and their programs</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Faculties</h3>
+                    <p>Explore different faculties and departments</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>Semesters</h3>
+                    <p>View semester-wise course information</p>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h2>Get Started</h2>
+                <div class="cta-buttons">
+                    <div class="cta-card">
+                        <h3>For Students</h3>
+                        <p>Access your course materials and schedules</p>
+                        <a href="register-client.html" class="cta-btn">Register as Client</a>
+                    </div>
+                    <div class="cta-card">
+                        <h3>For Administrators</h3>
+                        <p>Manage universities, faculties, and semesters</p>
+                        <a href="register-admin.html" class="cta-btn admin-btn">Register as Admin</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/navigation.js"></script>
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+            mobileMenuToggle.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
