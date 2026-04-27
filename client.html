@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#c74f1d">
     <title>Browse Notes - NotesHost</title>
+    <link rel="icon" type="image/jpeg" href="Logo.jpg">
+    <link rel="apple-touch-icon" href="Logo.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -84,10 +86,41 @@
             <div id="publicNotesGrid" class="grid">
                 <p class="notice">Loading public notes...</p>
             </div>
+            <div id="clientLoadMoreWrap" class="actions" style="justify-content:center; margin-top:1rem;">
+                <button id="clientLoadMoreBtn" class="btn secondary" type="button" onclick="loadMoreClientNotes()">Load More</button>
+            </div>
         </section>
     </main>
 
-    <footer class="footer">Open any note to read full content on the detail page.</footer>
+    <footer class="footer">
+        <div class="footer-team-name-bg">Somya & Team</div>
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3 class="footer-brand-title">NotesHost.</h3>
+                    <p class="footer-brand-desc">Refined notes hosting for the modern classroom. Share text, image,
+                        and PDF resources with elegant simplicity.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Navigate</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="client.html">Browse Notes</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="admin.html">Admin</a></li>
+                        <li><a href="scanner.html">Note Detail</a></li>
+                    </ul>
+                </div>
+                <div class="footer-action">
+                    <a href="Documentation.docx" class="btn-docs" download>Docs</a>
+                </div>
+            </div>
+        </div>
+    </footer>
     <script type="module" src="script.js"></script>
 </body>
 

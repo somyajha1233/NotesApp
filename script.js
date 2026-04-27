@@ -19,6 +19,8 @@ const notesRef = ref(db, "notes/items");
 
 let notes = [];
 let currentUser = null;
+let clientVisibleCount = 12;
+const CLIENT_PAGE_SIZE = 12;
 
 function escapeHTML(value) {
     return (value || "")
@@ -113,9 +115,9 @@ function getNoteKind(note) {
 }
 
 function getCardVisual(note) {
-    const visual = note.thumbnailData || note.imageData || "";
+    const visual = note.thumbnailData || "";
     if (!visual) return "";
-    return `<img class="note-thumb" src="${visual}" alt="${escapeHTML(note.title || "Note")}">`;
+    return `<img class="note-thumb" src="${visual}" loading="lazy" alt="${escapeHTML(note.title || "Note")}">`;
 }
 
 function buildNoteCard(note, options = {}) {
@@ -177,7 +179,7 @@ function renderHome() {
     if (!latestNotes) return;
 
     const publicNotes = getPublicNotes();
-    const latest = publicNotes.slice(0, 6);
+    const latest = publicNotes.slice(0, 4);
 
     if (totalNotesCount) totalNotesCount.textContent = String(publicNotes.length);
     if (textNotesCount) textNotesCount.textContent = String(publicNotes.filter(note => note.textContent && note.textContent.trim()).length);
@@ -198,6 +200,8 @@ function renderClient() {
     const subjectSortEl = document.getElementById("subjectSort");
     const semesterSortEl = document.getElementById("semesterSort");
     const countEl = document.getElementById("clientResultCount");
+    const loadMoreWrap = document.getElementById("clientLoadMoreWrap");
+    const loadMoreBtn = document.getElementById("clientLoadMoreBtn");
 
     const publicNotes = getPublicNotes();
     syncSubjectFilter(subjectEl, publicNotes);
@@ -209,13 +213,8 @@ function renderClient() {
     const semesterSort = semesterSortEl ? semesterSortEl.value : "none";
 
     const filtered = publicNotes.filter(note => {
-        const inSearch = !search || [
-            note.title,
-            note.subject,
-            note.author,
-            note.description,
-            note.textContent
-        ].filter(Boolean).some(value => value.toLowerCase().includes(search));
+        const searchable = (note.searchText || `${note.title || ""} ${note.subject || ""} ${note.author || ""} ${note.description || ""}`).toLowerCase();
+        const inSearch = !search || searchable.includes(search);
 
         const inSubject = subject === "all" || (note.subject || "General") === subject;
         const inSemester = semester === "all" || String(note.semester || 1) === semester;
@@ -243,9 +242,22 @@ function renderClient() {
         countEl.textContent = `${filtered.length} result${filtered.length === 1 ? "" : "s"}`;
     }
 
-    grid.innerHTML = filtered.length
-        ? filtered.map(note => buildNoteCard(note)).join("")
+    const visible = filtered.slice(0, clientVisibleCount);
+
+    grid.innerHTML = visible.length
+        ? visible.map(note => buildNoteCard(note)).join("")
         : '<p class="notice">No notes matched your filter.</p>';
+
+    const canLoadMore = filtered.length > clientVisibleCount;
+    if (loadMoreWrap) {
+        loadMoreWrap.classList.toggle("hidden", filtered.length === 0);
+    }
+    if (loadMoreBtn) {
+        loadMoreBtn.disabled = !canLoadMore;
+        loadMoreBtn.textContent = canLoadMore
+            ? `Load More (${filtered.length - clientVisibleCount} left)`
+            : "All notes loaded";
+    }
 }
 
 function showAdminMessage(message, isError = false) {
@@ -284,6 +296,10 @@ function resetAdminFormState() {
     if (heading) heading.textContent = "Create Note";
     clearFileInputs();
     hideAdminMessage();
+}
+
+function resetClientPagination() {
+    clientVisibleCount = CLIENT_PAGE_SIZE;
 }
 
 function renderAdminNotes() {
@@ -410,6 +426,8 @@ async function handleNoteSubmit(event) {
         visibility,
         description,
         textContent,
+        textExcerpt: textContent ? textContent.slice(0, 400) : "",
+        searchText: `${title} ${subject} ${author} ${description} ${textContent.slice(0, 600)}`,
         imageData,
         imageName,
         pdfData,
@@ -430,6 +448,12 @@ async function handleNoteSubmit(event) {
 }
 
 window.filterClientNotes = function () {
+    resetClientPagination();
+    renderClient();
+};
+
+window.loadMoreClientNotes = function () {
+    clientVisibleCount += CLIENT_PAGE_SIZE;
     renderClient();
 };
 
@@ -531,6 +555,7 @@ onValue(notesRef, snapshot => {
     notes.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
 
     renderHome();
+    resetClientPagination();
     renderClient();
     renderAdminNotes();
 });

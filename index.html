@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#c74f1d">
     <title>NotesHost - Share Notes Fast</title>
+    <link rel="icon" type="image/jpeg" href="Logo.jpg">
+    <link rel="apple-touch-icon" href="Logo.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -31,35 +33,16 @@
     </header>
 
     <main class="container">
-        <section class="hero panel">
-            <div>
-                <h1 class="hero-title">Host study notes in one place, ready to read from any device.</h1>
-                <p>
-                    NotesHost is a Firebase-powered notes platform where admins can upload text notes, image notes,
-                    and PDFs, and students can discover them instantly.
-                </p>
-                <div class="hero-actions">
-                    <a class="btn" href="client.html">Browse Public Notes</a>
-                    <a class="btn secondary" href="admin.html">Admin Dashboard</a>
-                </div>
-            </div>
-            <div class="stat-grid">
-                <article class="stat">
-                    <h3 id="totalNotesCount">0</h3>
-                    <p>Public Notes</p>
-                </article>
-                <article class="stat">
-                    <h3 id="textNotesCount">0</h3>
-                    <p>Text Notes</p>
-                </article>
-                <article class="stat">
-                    <h3 id="fileNotesCount">0</h3>
-                    <p>Image + PDF Notes</p>
-                </article>
-                <article class="stat">
-                    <h3>Realtime</h3>
-                    <p>Firebase Synced</p>
-                </article>
+        <section class="hero panel hero-welcome">
+            <span class="welcome-badge">Academic Notes Hub</span>
+            <h1 class="hero-title">Elegant notes hosting for every semester.</h1>
+            <p>
+                One calm, focused place for text notes, images, and PDFs. Built for students who want to find the
+                right material quickly and start learning without distractions.
+            </p>
+            <div class="hero-actions">
+                <a class="btn" href="client.html">Go to Notes</a>
+                <a class="btn secondary" href="admin.html">Open Admin</a>
             </div>
         </section>
 
@@ -74,7 +57,35 @@
         </section>
     </main>
 
-    <footer class="footer">Built with Firebase Realtime Database and Firebase Auth.</footer>
+    <footer class="footer">
+        <div class="footer-team-name-bg">Somya & Team</div>
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3 class="footer-brand-title">NotesHost.</h3>
+                    <p class="footer-brand-desc">Refined notes hosting for the modern classroom. Share text, image,
+                        and PDF resources with elegant simplicity.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Navigate</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="client.html">Browse Notes</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="admin.html">Admin</a></li>
+                        <li><a href="scanner.html">Note Detail</a></li>
+                    </ul>
+                </div>
+                <div class="footer-action">
+                    <a href="Documentation.docx" class="btn-docs" download>Docs</a>
+                </div>
+            </div>
+        </div>
+    </footer>
     <script type="module" src="script.js"></script>
 </body>
 
