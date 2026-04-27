@@ -1,245 +1,191 @@
+/* --- ORIGINAL THEME & FONTS --- */
+:root {
+    --primary: #7C2D12;
+    --accent: #EA580C;
+    --bg: #FFF7ED;
+    --text: #431407;
+    --stone-600: #57534e;
+}
+
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
     font-family: 'Inter', sans-serif;
-    background: #f0f2f5;
-    margin: 0;
-    color: #333;
+    background: var(--bg);
+    color: var(--text);
     line-height: 1.6;
 }
 
-/* Navigation */
+/* --- NAVIGATION (Preserving your exact look) --- */
 nav {
-    background: #2c3e50;
-    padding: 1rem;
+    background: var(--primary);
+    padding: 1rem 5%;
     display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-nav a {
-    color: #ecf0f1;
+.logo {
+    color: #FFEDD5;
+    font-family: 'SignPainter', cursive;
+    font-size: 2.2rem;
     text-decoration: none;
-    padding: 8px 12px;
-    border-radius: 4px;
 }
 
-nav a.active {
-    background: #34495e;
-    font-weight: bold;
+.nav-links a {
+    color: #FFEDD5;
+    text-decoration: none;
+    margin-left: 25px;
+    font-weight: 500;
+    transition: 0.3s;
 }
 
-/* Layout */
+.nav-links a:hover,
+.nav-links a.active {
+    color: #FB923C;
+}
+
+/* --- MOBILE MENU --- */
+.menu-btn {
+    display: none;
+    color: #FFEDD5;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .menu-btn {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--primary);
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .nav-links.open a {
+        margin: 0;
+    }
+}
+
+/* --- CARDS & GRID --- */
 .container {
-    max-width: 900px;
-    margin: 1.5rem auto;
-    padding: 0 15px;
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 20px;
 }
 
 .card {
     background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid #FFEDD5;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
 }
 
-/* Form Elements */
-form,
-.login-box {
-    display: flex;
-    gap: 10px;
-}
-
-input {
-    padding: 12px;
-    flex: 1;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-}
-
-button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-/* Buttons */
-.issue-btn {
-    background: #f1c40f;
-    color: #000;
-}
-
-.return-btn {
-    background: #3498db;
-    color: white;
-}
-
-.delete-btn {
-    background: #e74c3c;
-    color: white;
-}
-
-.qr-btn {
-    background: #607d8b;
-    color: white;
-}
-
-button[type="submit"] {
-    background: #27ae60;
-    color: white;
-}
-
-/* Responsive Table */
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th,
-td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-}
-
-th {
-    background: #f8f9fa;
-    font-size: 0.8rem;
-    color: #777;
-    text-transform: uppercase;
-}
-
-/* Client Grid */
 .book-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
 }
 
 .book-card {
     background: white;
-    padding: 1.2rem;
-    border-radius: 10px;
-    border-top: 4px solid #27ae60;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-/* QR Modal */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-}
-
-.modal-content {
-    background: white;
-    margin: 15% auto;
-    padding: 25px;
-    border-radius: 12px;
-    width: 300px;
-    text-align: center;
-    position: relative;
-}
-
-.close {
-    position: absolute;
-    right: 15px;
-    top: 10px;
-    font-size: 24px;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid #FFEDD5;
     cursor: pointer;
+    transition: 0.3s;
 }
 
-#qrcode {
-    display: flex;
-    justify-content: center;
-    margin: 15px 0;
+.book-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent);
 }
 
-/* Mobile Adjustments */
-@media (max-width: 650px) {
-
-    form,
-    .login-box {
-        flex-direction: column;
-    }
-
-    table,
-    thead,
-    tbody,
-    th,
-    td,
-    tr {
-        display: block;
-    }
-
-    thead tr {
-        position: absolute;
-        top: -9999px;
-    }
-
-    tr {
-        border: 1px solid #ddd;
-        margin-bottom: 10px;
-        border-radius: 8px;
-        padding: 10px;
-    }
-
-    td {
-        border: none;
-        position: relative;
-        padding-left: 50%;
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-    }
-
-    td:before {
-        content: attr(data-label);
-        font-weight: bold;
-        color: #777;
-    }
-
-    td:last-child {
-        justify-content: flex-start;
-        gap: 5px;
-        flex-wrap: wrap;
-    }
-}
-/* Add this to your existing CSS */
-.table-container { overflow-x: auto; }
-.login-box { margin-top: 10px; }
-.book-card p { margin: 5px 0; font-size: 0.9rem; }
-.qr-btn { width: 100%; margin-top: 10px; background: #34495e; color: white; }
-button:disabled { cursor: not-allowed; }
-/* User ID Badge Style */
-.user-badge {
-    background: #e1f5fe;
-    color: #0288d1;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    border: 1px solid #b3e5fc;
-    display: inline-block;
-    margin: 2px;
+.book-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.5rem;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
-/* Modal styles for the QR */
-.modal-content h3 { margin-bottom: 5px; color: #2c3e50; }
-.modal-content p { color: #7f8c8d; font-size: 0.9rem; margin-top: 15px; }
+/* --- FOOTER (Your exact design) --- */
+.footer {
+    background: var(--primary);
+    color: #FFEDD5;
+    padding: 4rem 0 2rem;
+    position: relative;
+    margin-top: 5rem;
+}
 
-/* Existing responsive table styles apply here as well */
+.footer-team-name-bg {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--accent);
+    color: white;
+    padding: 0.6rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+}
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+}
+
+/* --- ADMIN TABLE --- */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th {
+    background: #FFF7ED;
+    padding: 12px;
+    text-align: left;
+    color: var(--primary);
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #FFEDD5;
+}
