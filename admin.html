@@ -36,7 +36,8 @@
                 </button>
                 <nav class="nav" id="siteNav">
                     <a href="index.html" class="nav__link">Home</a>
-                    <a href="client.html" class="nav__link">Browse</a>
+                    <a href="client.html?contentType=note" class="nav__link">Notes</a>
+                    <a href="client.html?contentType=syllabus" class="nav__link">Syllabus</a>
                     <a href="admin.html" class="nav__link nav__link--active">Admin</a>
                 </nav>
                 <button id="adminLogoutBtn" class="btn btn--outline hidden" onclick="adminLogout()">Logout</button>
@@ -96,12 +97,22 @@
                             <label for="contentType">Content Type</label>
                             <select id="contentType" required>
                                 <option value="note">Note</option>
+                                <option value="syllabus">Syllabus</option>
                                 <option value="question-paper">Question Paper</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="row">
+                        <div class="field">
+                            <label for="faculty">Faculty</label>
+                            <select id="faculty" required>
+                                <option value="engineering">Engineering</option>
+                                <option value="bca">BCA</option>
+                                <option value="bit">BIT</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
                         <div class="field">
                             <label for="semester">Semester</label>
                             <select id="semester" required>

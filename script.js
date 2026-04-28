@@ -21,6 +21,7 @@ let notes = [];
 let currentUser = null;
 let clientVisibleCount = 12;
 const CLIENT_PAGE_SIZE = 12;
+let clientFiltersInitialized = false;
 
 function escapeHTML(value) {
     return (value || "")
@@ -64,6 +65,10 @@ function normalizeNote(note) {
 
     if (!normalized.contentType) {
         normalized.contentType = note.contentType || "note";
+    }
+
+    if (!normalized.faculty) {
+        normalized.faculty = note.faculty || "others";
     }
 
     if (Array.isArray(normalized.images)) {
@@ -153,11 +158,23 @@ function getNoteKind(note) {
 }
 
 function getContentTypeLabel(note) {
-    return note.contentType === "question-paper" ? "Question Paper" : "Note";
+    if (note.contentType === "question-paper") return "Question Paper";
+    if (note.contentType === "syllabus") return "Syllabus";
+    return "Note";
 }
 
 function getContentTypeClass(note) {
-    return note.contentType === "question-paper" ? "content-type-pill content-type-pill--question-paper" : "content-type-pill";
+    if (note.contentType === "question-paper") return "content-type-pill content-type-pill--question-paper";
+    if (note.contentType === "syllabus") return "content-type-pill content-type-pill--syllabus";
+    return "content-type-pill";
+}
+
+function getFacultyLabel(faculty) {
+    const value = (faculty || "").toLowerCase();
+    if (value === "engineering") return "Engineering";
+    if (value === "bca") return "BCA";
+    if (value === "bit") return "BIT";
+    return "Others";
 }
 
 function getCardVisual(note) {
@@ -166,11 +183,74 @@ function getCardVisual(note) {
     return `<img class="note-thumb" src="${visual}" loading="lazy" alt="${escapeHTML(note.title || "Note")}">`;
 }
 
+function syncClientFiltersFromURL() {
+    const grid = document.getElementById("publicNotesGrid");
+    if (!grid || clientFiltersInitialized) return;
+
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
+
+    const searchEl = document.getElementById("searchInput");
+    const subjectEl = document.getElementById("subjectFilter");
+    const semesterEl = document.getElementById("semesterFilter");
+    const contentTypeEl = document.getElementById("contentTypeFilter");
+    const facultyEl = document.getElementById("facultyFilter");
+
+    if (searchEl && params.get("search")) {
+        searchEl.value = params.get("search") || "";
+    }
+    if (subjectEl && params.get("subject")) {
+        subjectEl.value = params.get("subject") || "all";
+    }
+    if (semesterEl && params.get("semester")) {
+        semesterEl.value = params.get("semester") || "all";
+    }
+    if (contentTypeEl && params.get("contentType")) {
+        contentTypeEl.value = params.get("contentType") || "all";
+    }
+    if (facultyEl && params.get("faculty")) {
+        facultyEl.value = params.get("faculty") || "all";
+    }
+
+    clientFiltersInitialized = true;
+}
+
+function syncURLFromClientFilters() {
+    const grid = document.getElementById("publicNotesGrid");
+    if (!grid) return;
+
+    const url = new URL(window.location.href);
+    const searchEl = document.getElementById("searchInput");
+    const subjectEl = document.getElementById("subjectFilter");
+    const semesterEl = document.getElementById("semesterFilter");
+    const contentTypeEl = document.getElementById("contentTypeFilter");
+    const facultyEl = document.getElementById("facultyFilter");
+
+    const entries = [
+        ["search", searchEl ? searchEl.value.trim() : ""],
+        ["subject", subjectEl ? subjectEl.value : "all"],
+        ["semester", semesterEl ? semesterEl.value : "all"],
+        ["contentType", contentTypeEl ? contentTypeEl.value : "all"],
+        ["faculty", facultyEl ? facultyEl.value : "all"]
+    ];
+
+    entries.forEach(([key, value]) => {
+        if (!value || value === "all") {
+            url.searchParams.delete(key);
+        } else {
+            url.searchParams.set(key, value);
+        }
+    });
+
+    window.history.replaceState({}, "", url);
+}
+
 function buildNoteCard(note, options = {}) {
     const preview = escapeHTML(getNotePreview(note));
     const chips = `
         <div class="note-meta">
             <span class="${getContentTypeClass(note)}">${escapeHTML(getContentTypeLabel(note))}</span>
+            <span class="chip">${escapeHTML(getFacultyLabel(note.faculty))}</span>
             <span class="chip">${escapeHTML(note.subject || "General")}</span>
             <span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>
             <span class="chip">${escapeHTML(getNoteKind(note))}</span>
@@ -234,7 +314,7 @@ function renderHome() {
 
     latestNotes.innerHTML = latest.length
         ? latest.map(note => buildNoteCard(note)).join("")
-        : '<p class="notice">No notes yet. Add your first note from Admin Dashboard.</p>';
+        : '<p class="notice">No public notes yet. Check back soon for fresh uploads.</p>';
 }
 
 function renderClient() {
@@ -245,6 +325,7 @@ function renderClient() {
     const subjectEl = document.getElementById("subjectFilter");
     const semesterEl = document.getElementById("semesterFilter");
     const contentTypeEl = document.getElementById("contentTypeFilter");
+    const facultyEl = document.getElementById("facultyFilter");
     const subjectSortEl = document.getElementById("subjectSort");
     const semesterSortEl = document.getElementById("semesterSort");
     const countEl = document.getElementById("clientResultCount");
@@ -253,22 +334,25 @@ function renderClient() {
 
     const publicNotes = getPublicNotes();
     syncSubjectFilter(subjectEl, publicNotes);
+    syncClientFiltersFromURL();
 
     const search = (searchEl ? searchEl.value : "").trim().toLowerCase();
     const subject = subjectEl ? subjectEl.value : "all";
     const semester = semesterEl ? semesterEl.value : "all";
     const contentType = contentTypeEl ? contentTypeEl.value : "all";
+    const faculty = facultyEl ? facultyEl.value : "all";
     const subjectSort = subjectSortEl ? subjectSortEl.value : "none";
     const semesterSort = semesterSortEl ? semesterSortEl.value : "none";
 
     const filtered = publicNotes.filter(note => {
-        const searchable = (note.searchText || `${note.title || ""} ${note.subject || ""} ${note.author || ""} ${note.description || ""} ${note.contentType || ""}`).toLowerCase();
+        const searchable = (note.searchText || `${note.title || ""} ${note.subject || ""} ${note.author || ""} ${note.description || ""} ${note.contentType || ""} ${note.faculty || ""}`).toLowerCase();
         const inSearch = !search || searchable.includes(search);
 
         const inSubject = subject === "all" || (note.subject || "General") === subject;
         const inSemester = semester === "all" || String(note.semester || 1) === semester;
         const inContentType = contentType === "all" || (note.contentType || "note") === contentType;
-        return inSearch && inSubject && inSemester && inContentType;
+        const inFaculty = faculty === "all" || (note.faculty || "others") === faculty;
+        return inSearch && inSubject && inSemester && inContentType && inFaculty;
     });
 
     filtered.sort((a, b) => {
@@ -296,7 +380,7 @@ function renderClient() {
 
     grid.innerHTML = visible.length
         ? visible.map(note => buildNoteCard(note)).join("")
-        : '<p class="notice">No notes matched your filter.</p>';
+        : '<p class="notice">No study material matched your filter. Try changing content type, semester, or search keywords.</p>';
 
     const canLoadMore = filtered.length > clientVisibleCount;
     if (loadMoreWrap) {
@@ -387,6 +471,7 @@ async function handleNoteSubmit(event) {
     const titleEl = document.getElementById("title");
     const subjectEl = document.getElementById("subject");
     const authorEl = document.getElementById("author");
+    const facultyEl = document.getElementById("faculty");
     const semesterEl = document.getElementById("semester");
     const visibilityEl = document.getElementById("visibility");
     const descriptionEl = document.getElementById("description");
@@ -402,6 +487,7 @@ async function handleNoteSubmit(event) {
     const subject = subjectEl ? subjectEl.value.trim() : "";
     const author = authorEl ? authorEl.value.trim() : "";
     const contentType = document.getElementById("contentType") ? document.getElementById("contentType").value : "note";
+    const faculty = facultyEl ? facultyEl.value : "others";
     const semester = semesterEl ? Number(semesterEl.value || 1) : 1;
     const visibility = visibilityEl ? visibilityEl.value : "public";
     const description = descriptionEl ? descriptionEl.value.trim() : "";
@@ -481,11 +567,12 @@ async function handleNoteSubmit(event) {
         semester,
         author,
         contentType,
+        faculty,
         visibility,
         description,
         textContent,
         textExcerpt: textContent ? textContent.slice(0, 400) : "",
-        searchText: `${title} ${subject} ${author} ${description} ${contentType} ${textContent.slice(0, 600)} ${searchImageText}`,
+        searchText: `${title} ${subject} ${author} ${description} ${contentType} ${faculty} ${textContent.slice(0, 600)} ${searchImageText}`,
         images,
         imageData: images[0]?.data || "",
         imageName: images[0]?.name || "",
@@ -509,6 +596,7 @@ async function handleNoteSubmit(event) {
 window.filterClientNotes = function () {
     resetClientPagination();
     renderClient();
+    syncURLFromClientFilters();
 };
 
 window.loadMoreClientNotes = function () {
@@ -570,6 +658,7 @@ window.editNote = function (noteId) {
     const titleEl = document.getElementById("title");
     const subjectEl = document.getElementById("subject");
     const authorEl = document.getElementById("author");
+    const facultyEl = document.getElementById("faculty");
     const contentTypeEl = document.getElementById("contentType");
     const semesterEl = document.getElementById("semester");
     const visibilityEl = document.getElementById("visibility");
@@ -577,7 +666,7 @@ window.editNote = function (noteId) {
     const textEl = document.getElementById("textContent");
     const heading = document.getElementById("formHeading");
 
-    if (!noteIdEl || !titleEl || !subjectEl || !authorEl || !contentTypeEl || !semesterEl || !visibilityEl || !descriptionEl || !textEl) {
+    if (!noteIdEl || !titleEl || !subjectEl || !authorEl || !facultyEl || !contentTypeEl || !semesterEl || !visibilityEl || !descriptionEl || !textEl) {
         return;
     }
 
@@ -585,6 +674,7 @@ window.editNote = function (noteId) {
     titleEl.value = note.title || "";
     subjectEl.value = note.subject || "";
     authorEl.value = note.author || "";
+    facultyEl.value = note.faculty || "others";
     contentTypeEl.value = note.contentType || "note";
     semesterEl.value = String(note.semester || 1);
     visibilityEl.value = note.visibility || "public";
@@ -667,4 +757,30 @@ function setupNavigationMenu() {
     });
 }
 
+function syncActiveClientNavLink() {
+    const nav = document.getElementById("siteNav");
+    if (!nav) return;
+
+    const url = new URL(window.location.href);
+    const isClientPage = url.pathname.toLowerCase().endsWith("client.html");
+    if (!isClientPage) return;
+
+    const contentType = (url.searchParams.get("contentType") || "note").toLowerCase();
+    const links = nav.querySelectorAll(".nav__link");
+
+    links.forEach(link => link.classList.remove("nav__link--active"));
+
+    let target = null;
+    if (contentType === "syllabus") {
+        target = nav.querySelector('a[href*="contentType=syllabus"]');
+    } else if (contentType === "question-paper") {
+        target = nav.querySelector('a[href*="contentType=question-paper"]');
+    } else {
+        target = nav.querySelector('a[href*="contentType=note"]') || nav.querySelector('a[href="client.html"]');
+    }
+
+    if (target) target.classList.add("nav__link--active");
+}
+
 setupNavigationMenu();
+syncActiveClientNavLink();

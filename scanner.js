@@ -47,6 +47,10 @@ function normalizeNote(note) {
         normalized.contentType = note.contentType || "note";
     }
 
+    if (!normalized.faculty) {
+        normalized.faculty = note.faculty || "others";
+    }
+
     if (Array.isArray(normalized.images)) {
         normalized.images = normalized.images
             .map(image => {
@@ -127,7 +131,8 @@ function showNote(note) {
 
     contentEl.innerHTML = `
         <div class="note-meta" style="margin-bottom:0.8rem;">
-            <span class="${note.contentType === "question-paper" ? "content-type-pill content-type-pill--question-paper" : "content-type-pill"}">${escapeHTML(note.contentType === "question-paper" ? "Question Paper" : "Note")}</span>
+            <span class="${note.contentType === "question-paper" ? "content-type-pill content-type-pill--question-paper" : note.contentType === "syllabus" ? "content-type-pill content-type-pill--syllabus" : "content-type-pill"}">${escapeHTML(note.contentType === "question-paper" ? "Question Paper" : note.contentType === "syllabus" ? "Syllabus" : "Note")}</span>
+            <span class="chip">${escapeHTML((note.faculty || "others").toUpperCase())}</span>
             <span class="chip">${escapeHTML(note.subject || "General")}</span>
             <span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>
             <span class="chip">${escapeHTML(note.visibility || "public")}</span>

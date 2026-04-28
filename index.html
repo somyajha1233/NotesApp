@@ -58,8 +58,9 @@
       </button>
       <nav class="nav" id="siteNav">
         <a href="index.html" class="nav__link nav__link--active">Home</a>
-        <a href="client.html" class="nav__link">Browse</a>
-        <a href="admin.html" class="nav__link">Admin</a>
+        <a href="client.html?contentType=note" class="nav__link">Notes</a>
+        <a href="client.html?contentType=syllabus" class="nav__link">Syllabus</a>
+        <a href="client.html?contentType=question-paper" class="nav__link">Question Papers</a>
       </nav>
     </div>
   </header>
@@ -79,43 +80,19 @@
           Subject-wise study material — PDFs, images, and text — for every semester. Find what you need, fast.
         </p>
         <div class="hero__actions">
-          <a href="client.html" class="btn btn--primary">Browse Notes</a>
-          <a href="admin.html" class="btn btn--ghost">Upload Notes</a>
+          <a href="client.html?contentType=note" class="btn btn--primary">Browse Notes</a>
+          <a href="client.html?contentType=question-paper" class="btn btn--ghost">Find Question Papers</a>
         </div>
       </div>
 
       <div class="hero__right">
         <div class="info-card">
-          <p class="info-card__label">What's inside</p>
-          <ul class="info-card__list">
-            <li>
-              <span class="info-card__icon">✦</span>
-              <div>
-                <strong>All 8 semesters</strong>
-                <span>Complete coverage, 1st to 8th</span>
-              </div>
-            </li>
-            <li>
-              <span class="info-card__icon">✦</span>
-              <div>
-                <strong>Subject-wise browsing</strong>
-                <span>Filter and sort instantly</span>
-              </div>
-            </li>
-            <li>
-              <span class="info-card__icon">✦</span>
-              <div>
-                <strong>Multiple formats</strong>
-                <span>Text, PDF, and images</span>
-              </div>
-            </li>
-            <li>
-              <span class="info-card__icon">✦</span>
-              <div>
-                <strong>Fast search</strong>
-                <span>Zero friction interface</span>
-              </div>
-            </li>
+          <p class="info-card__label">Choose Faculty</p>
+          <ul class="info-card__list faculty-list">
+            <li><a href="client.html?faculty=engineering" class="faculty-link">Engineering</a></li>
+            <li><a href="client.html?faculty=bca" class="faculty-link">BCA</a></li>
+            <li><a href="client.html?faculty=bit" class="faculty-link">BIT</a></li>
+            <li><a href="client.html?faculty=others" class="faculty-link">Others</a></li>
           </ul>
         </div>
       </div>
@@ -161,8 +138,8 @@
           <div>
             <h4 class="footer__heading">Resources</h4>
             <ul class="footer__links">
-              <li><a href="admin.html">Admin</a></li>
-              <li><a href="scanner.html">Note Detail</a></li>
+              <li><a href="client.html?contentType=question-paper">Question Papers</a></li>
+              <li><a href="client.html">All Study Material</a></li>
             </ul>
           </div>
           <div class="footer__action">
