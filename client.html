@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Browse Notes — NotesHost</title>
-    <meta name="description" content="Browse semester-wise NotesHost study material with search, subject filters, semester filters, and fast mobile-friendly navigation." />
+    <meta name="description" content="Browse semester-wise NotesHost study material with search, semester filters, and fast mobile-friendly navigation." />
     <meta name="author" content="Somya & Team" />
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <meta property="og:type" content="website" />
@@ -53,14 +53,8 @@
             <div class="toolbar">
                 <div class="field" style="flex:1; min-width:220px;">
                     <label for="searchInput">Search</label>
-                    <input id="searchInput" type="text" placeholder="Search notes, question papers, subject, author"
+                    <input id="searchInput" type="text" placeholder="Search notes, question papers, author"
                         oninput="filterClientNotes()">
-                </div>
-                <div class="field" style="min-width:180px;">
-                    <label for="subjectFilter">Subject</label>
-                    <select id="subjectFilter" onchange="filterClientNotes()">
-                        <option value="all">All subjects</option>
-                    </select>
                 </div>
                 <div class="field" style="min-width:180px;">
                     <label for="semesterFilter">Semester</label>
@@ -92,15 +86,6 @@
                         <option value="engineering">Engineering</option>
                         <option value="bca">BCA</option>
                         <option value="bit">BIT</option>
-                        <option value="others">Others</option>
-                    </select>
-                </div>
-                <div class="field" style="min-width:160px;">
-                    <label for="subjectSort">Sort Subject</label>
-                    <select id="subjectSort" onchange="filterClientNotes()">
-                        <option value="none">No sort</option>
-                        <option value="asc">A to Z</option>
-                        <option value="desc">Z to A</option>
                     </select>
                 </div>
                 <div class="field" style="min-width:160px;">

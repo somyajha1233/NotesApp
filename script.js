@@ -191,16 +191,12 @@ function syncClientFiltersFromURL() {
     const params = url.searchParams;
 
     const searchEl = document.getElementById("searchInput");
-    const subjectEl = document.getElementById("subjectFilter");
     const semesterEl = document.getElementById("semesterFilter");
     const contentTypeEl = document.getElementById("contentTypeFilter");
     const facultyEl = document.getElementById("facultyFilter");
 
     if (searchEl && params.get("search")) {
         searchEl.value = params.get("search") || "";
-    }
-    if (subjectEl && params.get("subject")) {
-        subjectEl.value = params.get("subject") || "all";
     }
     if (semesterEl && params.get("semester")) {
         semesterEl.value = params.get("semester") || "all";
@@ -221,14 +217,12 @@ function syncURLFromClientFilters() {
 
     const url = new URL(window.location.href);
     const searchEl = document.getElementById("searchInput");
-    const subjectEl = document.getElementById("subjectFilter");
     const semesterEl = document.getElementById("semesterFilter");
     const contentTypeEl = document.getElementById("contentTypeFilter");
     const facultyEl = document.getElementById("facultyFilter");
 
     const entries = [
         ["search", searchEl ? searchEl.value.trim() : ""],
-        ["subject", subjectEl ? subjectEl.value : "all"],
         ["semester", semesterEl ? semesterEl.value : "all"],
         ["contentType", contentTypeEl ? contentTypeEl.value : "all"],
         ["faculty", facultyEl ? facultyEl.value : "all"]
@@ -247,14 +241,25 @@ function syncURLFromClientFilters() {
 
 function buildNoteCard(note, options = {}) {
     const preview = escapeHTML(getNotePreview(note));
+    const chipsParts = [];
+
+    chipsParts.push(`<span class="${getContentTypeClass(note)}">${escapeHTML(getContentTypeLabel(note))}</span>`);
+
+    const facultyVal = (note.faculty || "").toLowerCase();
+    if (facultyVal && facultyVal !== "others") {
+        chipsParts.push(`<span class="chip">${escapeHTML(getFacultyLabel(note.faculty))}</span>`);
+    }
+
+    chipsParts.push(`<span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>`);
+
+    if (options.admin) {
+        chipsParts.push(`<span class="chip">${escapeHTML(getNoteKind(note))}</span>`);
+        chipsParts.push(`<span class="chip">${escapeHTML(note.visibility || "public")}</span>`);
+    }
+
     const chips = `
         <div class="note-meta">
-            <span class="${getContentTypeClass(note)}">${escapeHTML(getContentTypeLabel(note))}</span>
-            <span class="chip">${escapeHTML(getFacultyLabel(note.faculty))}</span>
-            <span class="chip">${escapeHTML(note.subject || "General")}</span>
-            <span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>
-            <span class="chip">${escapeHTML(getNoteKind(note))}</span>
-            <span class="chip">${escapeHTML(note.visibility || "public")}</span>
+            ${chipsParts.join('\n')}
         </div>
     `;
 
@@ -277,24 +282,6 @@ function buildNoteCard(note, options = {}) {
             ${adminActions}
         </article>
     `;
-}
-
-function syncSubjectFilter(selectEl, sourceNotes) {
-    if (!selectEl) return;
-    const previousValue = selectEl.value || "all";
-    const uniqueSubjects = [...new Set(sourceNotes.map(note => (note.subject || "General").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-
-    selectEl.innerHTML = '<option value="all">All subjects</option>';
-    uniqueSubjects.forEach(subject => {
-        const option = document.createElement("option");
-        option.value = subject;
-        option.textContent = subject;
-        selectEl.appendChild(option);
-    });
-
-    if (["all", ...uniqueSubjects].includes(previousValue)) {
-        selectEl.value = previousValue;
-    }
 }
 
 function renderHome() {
@@ -322,47 +309,34 @@ function renderClient() {
     if (!grid) return;
 
     const searchEl = document.getElementById("searchInput");
-    const subjectEl = document.getElementById("subjectFilter");
     const semesterEl = document.getElementById("semesterFilter");
     const contentTypeEl = document.getElementById("contentTypeFilter");
     const facultyEl = document.getElementById("facultyFilter");
-    const subjectSortEl = document.getElementById("subjectSort");
     const semesterSortEl = document.getElementById("semesterSort");
     const countEl = document.getElementById("clientResultCount");
     const loadMoreWrap = document.getElementById("clientLoadMoreWrap");
     const loadMoreBtn = document.getElementById("clientLoadMoreBtn");
 
     const publicNotes = getPublicNotes();
-    syncSubjectFilter(subjectEl, publicNotes);
     syncClientFiltersFromURL();
 
     const search = (searchEl ? searchEl.value : "").trim().toLowerCase();
-    const subject = subjectEl ? subjectEl.value : "all";
     const semester = semesterEl ? semesterEl.value : "all";
     const contentType = contentTypeEl ? contentTypeEl.value : "all";
     const faculty = facultyEl ? facultyEl.value : "all";
-    const subjectSort = subjectSortEl ? subjectSortEl.value : "none";
     const semesterSort = semesterSortEl ? semesterSortEl.value : "none";
 
     const filtered = publicNotes.filter(note => {
         const searchable = (note.searchText || `${note.title || ""} ${note.subject || ""} ${note.author || ""} ${note.description || ""} ${note.contentType || ""} ${note.faculty || ""}`).toLowerCase();
         const inSearch = !search || searchable.includes(search);
 
-        const inSubject = subject === "all" || (note.subject || "General") === subject;
         const inSemester = semester === "all" || String(note.semester || 1) === semester;
         const inContentType = contentType === "all" || (note.contentType || "note") === contentType;
         const inFaculty = faculty === "all" || (note.faculty || "others") === faculty;
-        return inSearch && inSubject && inSemester && inContentType && inFaculty;
+        return inSearch && inSemester && inContentType && inFaculty;
     });
 
     filtered.sort((a, b) => {
-        if (subjectSort !== "none") {
-            const aSubject = (a.subject || "General").toLowerCase();
-            const bSubject = (b.subject || "General").toLowerCase();
-            if (aSubject < bSubject) return subjectSort === "asc" ? -1 : 1;
-            if (aSubject > bSubject) return subjectSort === "asc" ? 1 : -1;
-        }
-
         if (semesterSort !== "none") {
             const aSem = Number(a.semester || 1);
             const bSem = Number(b.semester || 1);

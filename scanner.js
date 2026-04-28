@@ -129,13 +129,21 @@ function showNote(note) {
         `
         : "";
 
+    const metaParts = [];
+    metaParts.push(`<span class="${note.contentType === "question-paper" ? "content-type-pill content-type-pill--question-paper" : note.contentType === "syllabus" ? "content-type-pill content-type-pill--syllabus" : "content-type-pill"}">${escapeHTML(note.contentType === "question-paper" ? "Question Paper" : note.contentType === "syllabus" ? "Syllabus" : "Note")}</span>`);
+    const facultyVal = (note.faculty || "").toLowerCase();
+    if (facultyVal && facultyVal !== "others") {
+        metaParts.push(`<span class="chip">${escapeHTML((note.faculty || "").toUpperCase())}</span>`);
+    }
+    const subj = (note.subject || "").trim();
+    if (subj && subj.toLowerCase() !== "computer") {
+        metaParts.push(`<span class="chip">${escapeHTML(subj || "General")}</span>`);
+    }
+    metaParts.push(`<span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>`);
+
     contentEl.innerHTML = `
         <div class="note-meta" style="margin-bottom:0.8rem;">
-            <span class="${note.contentType === "question-paper" ? "content-type-pill content-type-pill--question-paper" : note.contentType === "syllabus" ? "content-type-pill content-type-pill--syllabus" : "content-type-pill"}">${escapeHTML(note.contentType === "question-paper" ? "Question Paper" : note.contentType === "syllabus" ? "Syllabus" : "Note")}</span>
-            <span class="chip">${escapeHTML((note.faculty || "others").toUpperCase())}</span>
-            <span class="chip">${escapeHTML(note.subject || "General")}</span>
-            <span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>
-            <span class="chip">${escapeHTML(note.visibility || "public")}</span>
+            ${metaParts.join('\n')}
         </div>
         <h1 class="hero-title" style="font-size:2.2rem; margin-bottom:0.5rem;">${escapeHTML(note.title || "Untitled")}</h1>
         <p class="note-preview" style="margin-bottom:0.5rem;">By ${escapeHTML(note.author || "Unknown")} • Updated ${escapeHTML(formatDate(note.updatedAt || note.createdAt))}</p>
