@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-import { getDatabase, onValue, ref, remove, set } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+import { getDatabase, limitToLast, onValue, orderByChild, query, ref, remove, set } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBh1s2S6rZe9zK4DLWpZUcpXtXZolEBQlI",
@@ -16,12 +16,17 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 const notesRef = ref(db, "notes/items");
+const publicNotesQuery = query(notesRef, orderByChild("updatedAt"), limitToLast(150));
 
-let notes = [];
+let publicNotes = [];
+let adminNotes = [];
 let currentUser = null;
 let clientVisibleCount = 12;
 const CLIENT_PAGE_SIZE = 12;
 let clientFiltersInitialized = false;
+let detachAdminNotes = null;
+let publicNotesLoaded = false;
+let adminNotesLoaded = false;
 
 function escapeHTML(value) {
     return (value || "")
@@ -56,7 +61,23 @@ function isPublic(note) {
 }
 
 function getPublicNotes() {
-    return notes.filter(isPublic);
+    return publicNotes.filter(isPublic);
+}
+
+function renderSkeletonCards(count = 4) {
+    return Array.from({ length: count }, () => `
+        <article class="note-card note-card--skeleton" aria-hidden="true">
+            <div class="note-meta">
+                <span class="skeleton skeleton--pill"></span>
+                <span class="skeleton skeleton--pill"></span>
+                <span class="skeleton skeleton--pill"></span>
+            </div>
+            <div class="skeleton skeleton--line skeleton--title"></div>
+            <div class="skeleton skeleton--line skeleton--meta"></div>
+            <div class="skeleton skeleton--block"></div>
+            <div class="skeleton skeleton--line"></div>
+        </article>
+    `).join("");
 }
 
 function normalizeNote(note) {
@@ -292,6 +313,11 @@ function renderHome() {
 
     if (!latestNotes) return;
 
+    if (!publicNotesLoaded) {
+        latestNotes.innerHTML = renderSkeletonCards(4);
+        return;
+    }
+
     const publicNotes = getPublicNotes();
     const latest = publicNotes.slice(0, 4);
 
@@ -316,6 +342,13 @@ function renderClient() {
     const countEl = document.getElementById("clientResultCount");
     const loadMoreWrap = document.getElementById("clientLoadMoreWrap");
     const loadMoreBtn = document.getElementById("clientLoadMoreBtn");
+
+    if (!publicNotesLoaded) {
+        grid.innerHTML = renderSkeletonCards(8);
+        if (countEl) countEl.textContent = "Loading notes...";
+        if (loadMoreWrap) loadMoreWrap.classList.add("hidden");
+        return;
+    }
 
     const publicNotes = getPublicNotes();
     syncClientFiltersFromURL();
@@ -414,8 +447,18 @@ function renderAdminNotes() {
     const list = document.getElementById("adminNotesList");
     if (!list) return;
 
-    list.innerHTML = notes.length
-        ? notes.map(note => buildNoteCard(note, { admin: true })).join("")
+    if (!currentUser) {
+        list.innerHTML = '<p class="notice">Log in to manage notes.</p>';
+        return;
+    }
+
+    if (!adminNotesLoaded) {
+        list.innerHTML = renderSkeletonCards(4);
+        return;
+    }
+
+    list.innerHTML = adminNotes.length
+        ? adminNotes.map(note => buildNoteCard(note, { admin: true })).join("")
         : '<p class="notice">No notes found. Create one using the form above.</p>';
 }
 
@@ -455,7 +498,7 @@ async function handleNoteSubmit(event) {
     const thumbEl = document.getElementById("thumbnailInput");
 
     const id = noteIdEl && noteIdEl.value ? noteIdEl.value : createId();
-    const existing = notes.find(note => note.id === id);
+    const existing = adminNotes.find(note => note.id === id);
 
     const title = titleEl ? titleEl.value.trim() : "";
     const subject = subjectEl ? subjectEl.value.trim() : "";
@@ -625,7 +668,7 @@ window.clearAdminForm = function () {
 };
 
 window.editNote = function (noteId) {
-    const note = notes.find(item => item.id === noteId);
+    const note = adminNotes.find(item => item.id === noteId);
     if (!note) return;
 
     const noteIdEl = document.getElementById("noteId");
@@ -678,20 +721,41 @@ window.deleteNote = async function (noteId) {
     }
 };
 
-onValue(notesRef, snapshot => {
+onValue(publicNotesQuery, snapshot => {
     const data = snapshot.val();
-    notes = data ? Object.values(data).map(normalizeNote) : [];
-    notes.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+    publicNotes = data ? Object.values(data).map(normalizeNote) : [];
+    publicNotes.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+    publicNotesLoaded = true;
 
     renderHome();
     resetClientPagination();
     renderClient();
-    renderAdminNotes();
 });
 
 onAuthStateChanged(auth, user => {
     currentUser = user;
     updateAdminUI();
+
+    if (detachAdminNotes) {
+        detachAdminNotes();
+        detachAdminNotes = null;
+    }
+
+    if (user) {
+        adminNotesLoaded = false;
+        renderAdminNotes();
+        detachAdminNotes = onValue(notesRef, snapshot => {
+            const data = snapshot.val();
+            adminNotes = data ? Object.values(data).map(normalizeNote) : [];
+            adminNotes.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+            adminNotesLoaded = true;
+            renderAdminNotes();
+        });
+    } else {
+        adminNotes = [];
+        adminNotesLoaded = false;
+        renderAdminNotes();
+    }
 });
 
 const noteForm = document.getElementById("noteForm");
@@ -757,4 +821,7 @@ function syncActiveClientNavLink() {
 }
 
 setupNavigationMenu();
+renderHome();
+renderClient();
+renderAdminNotes();
 syncActiveClientNavLink();
