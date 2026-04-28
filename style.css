@@ -729,7 +729,7 @@ textarea {
     gap: 3rem;
   }
 
-  .hero { padding-block: 56px 48px; }
+  .hero { padding-block: 56px 48px;align-self: center; }
 
   .hero__title { font-size: clamp(2.4rem, 8vw, 3.4rem); }
 
@@ -762,9 +762,42 @@ textarea {
 
   .hero { padding-block: 44px 40px; }
 
-  .hero__title { font-size: clamp(2.2rem, 10vw, 3rem); }
+  .hero__inner {
+    justify-items: center;
+    text-align: center;
+  }
 
-  .hero__desc { font-size: 0.95rem; }
+  .hero__left {
+    align-items: center;
+  }
+
+  .hero__title {
+    font-size: clamp(2.2rem, 10vw, 3rem);
+  }
+
+  .hero__desc {
+    font-size: 0.95rem;
+    margin-inline: auto;
+  }
+
+  .hero__actions {
+    justify-content: center;
+  }
+
+  .hero__right {
+    width: 100%;
+  }
+
+  .info-card {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 520px;
+    text-align: left;
+  }
+
+  .badge {
+    margin-inline: auto;
+  }
 
   .hero__actions .btn--primary { flex: 1; }
 
