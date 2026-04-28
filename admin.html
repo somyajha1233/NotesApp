@@ -70,8 +70,8 @@
                     <button class="btn secondary" onclick="clearAdminForm()">Clear Form</button>
                 </div>
                 <p class="notice" style="margin-bottom:0.9rem;">
-                    Create a full note in one editor box. You can add text, an image, and a PDF in the same post,
-                    plus an optional thumbnail. Set visibility to Public to show notes on the Browse page.
+                    Create a full note or question paper in one editor box. You can add text, an image, and a PDF in the same post,
+                    plus an optional thumbnail. Set the content type so notes and question papers stay distinct.
                 </p>
 
                 <form id="noteForm">
@@ -92,6 +92,16 @@
                             <label for="author">Author</label>
                             <input id="author" type="text" required>
                         </div>
+                        <div class="field">
+                            <label for="contentType">Content Type</label>
+                            <select id="contentType" required>
+                                <option value="note">Note</option>
+                                <option value="question-paper">Question Paper</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="field">
                             <label for="semester">Semester</label>
                             <select id="semester" required>
@@ -128,8 +138,9 @@
 
                     <div class="row">
                         <div class="field">
-                            <label for="imageInput">Upload Image (Optional)</label>
-                            <input id="imageInput" type="file" accept="image/*">
+                            <label for="imageInput">Upload Images (Optional)</label>
+                            <input id="imageInput" type="file" accept="image/*" multiple>
+                            <small class="field-help">You can choose more than one image at once.</small>
                         </div>
                         <div class="field">
                             <label for="pdfInput">Upload PDF (Optional)</label>
@@ -153,6 +164,9 @@
             <article class="panel">
                 <div class="section-head">
                     <h2>All Notes</h2>
+                </div>
+                <div class="ad-slot" aria-label="Advertisement placement">
+                    <span>Ad placement</span>
                 </div>
                 <div id="adminNotesList" class="grid">
                     <p class="notice">Loading notes...</p>

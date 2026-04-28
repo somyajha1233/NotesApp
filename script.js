@@ -62,13 +62,42 @@ function normalizeNote(note) {
     const type = note.type || "";
     const normalized = { ...note };
 
+    if (!normalized.contentType) {
+        normalized.contentType = note.contentType || "note";
+    }
+
+    if (Array.isArray(normalized.images)) {
+        normalized.images = normalized.images
+            .map(image => {
+                if (!image) return null;
+                if (typeof image === "string") {
+                    return { data: image, name: "" };
+                }
+                if (typeof image === "object") {
+                    return {
+                        data: image.data || image.url || image.src || "",
+                        name: image.name || image.fileName || ""
+                    };
+                }
+                return null;
+            })
+            .filter(image => image && image.data);
+    } else if (normalized.imageData) {
+        normalized.images = [
+            typeof normalized.imageData === "string"
+                ? { data: normalized.imageData, name: normalized.imageName || "" }
+                : normalized.imageData
+        ].filter(image => image && image.data);
+    } else {
+        normalized.images = [];
+    }
+
     if (!normalized.semester) {
         normalized.semester = 1;
     }
 
-    if (!normalized.imageData && type === "image" && normalized.fileData) {
-        normalized.imageData = normalized.fileData;
-        normalized.imageName = normalized.fileName || "";
+    if (!normalized.images.length && type === "image" && normalized.fileData) {
+        normalized.images = [{ data: normalized.fileData, name: normalized.fileName || "" }];
     }
 
     if (!normalized.pdfData && type === "pdf" && normalized.fileData) {
@@ -102,15 +131,15 @@ function getSemesterLabel(semester) {
 function getNotePreview(note) {
     if (note.description && note.description.trim()) return note.description.trim();
     if (note.textContent) return note.textContent.slice(0, 140);
-    if (note.imageData && note.pdfData) return "Contains image and PDF";
-    if (note.imageData) return "Contains image";
+    if (note.images && note.images.length && note.pdfData) return `Contains ${note.images.length} image${note.images.length === 1 ? "" : "s"} and PDF`;
+    if (note.images && note.images.length) return `Contains ${note.images.length} image${note.images.length === 1 ? "" : "s"}`;
     if (note.pdfData) return note.pdfName ? `PDF: ${note.pdfName}` : "Contains PDF";
     return "No preview available";
 }
 
 function getNoteKind(note) {
     const hasText = !!(note.textContent && note.textContent.trim());
-    const hasImage = !!note.imageData;
+    const hasImage = !!(note.images && note.images.length);
     const hasPdf = !!note.pdfData;
 
     if (hasText && hasImage && hasPdf) return "TEXT + IMAGE + PDF";
@@ -123,8 +152,16 @@ function getNoteKind(note) {
     return "EMPTY";
 }
 
+function getContentTypeLabel(note) {
+    return note.contentType === "question-paper" ? "Question Paper" : "Note";
+}
+
+function getContentTypeClass(note) {
+    return note.contentType === "question-paper" ? "content-type-pill content-type-pill--question-paper" : "content-type-pill";
+}
+
 function getCardVisual(note) {
-    const visual = note.thumbnailData || "";
+    const visual = note.thumbnailData || (note.images && note.images[0] ? note.images[0].data : "") || "";
     if (!visual) return "";
     return `<img class="note-thumb" src="${visual}" loading="lazy" alt="${escapeHTML(note.title || "Note")}">`;
 }
@@ -133,6 +170,7 @@ function buildNoteCard(note, options = {}) {
     const preview = escapeHTML(getNotePreview(note));
     const chips = `
         <div class="note-meta">
+            <span class="${getContentTypeClass(note)}">${escapeHTML(getContentTypeLabel(note))}</span>
             <span class="chip">${escapeHTML(note.subject || "General")}</span>
             <span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>
             <span class="chip">${escapeHTML(getNoteKind(note))}</span>
@@ -192,7 +230,7 @@ function renderHome() {
 
     if (totalNotesCount) totalNotesCount.textContent = String(publicNotes.length);
     if (textNotesCount) textNotesCount.textContent = String(publicNotes.filter(note => note.textContent && note.textContent.trim()).length);
-    if (fileNotesCount) fileNotesCount.textContent = String(publicNotes.filter(note => note.imageData || note.pdfData).length);
+    if (fileNotesCount) fileNotesCount.textContent = String(publicNotes.filter(note => (note.images && note.images.length) || note.pdfData).length);
 
     latestNotes.innerHTML = latest.length
         ? latest.map(note => buildNoteCard(note)).join("")
@@ -206,6 +244,7 @@ function renderClient() {
     const searchEl = document.getElementById("searchInput");
     const subjectEl = document.getElementById("subjectFilter");
     const semesterEl = document.getElementById("semesterFilter");
+    const contentTypeEl = document.getElementById("contentTypeFilter");
     const subjectSortEl = document.getElementById("subjectSort");
     const semesterSortEl = document.getElementById("semesterSort");
     const countEl = document.getElementById("clientResultCount");
@@ -218,16 +257,18 @@ function renderClient() {
     const search = (searchEl ? searchEl.value : "").trim().toLowerCase();
     const subject = subjectEl ? subjectEl.value : "all";
     const semester = semesterEl ? semesterEl.value : "all";
+    const contentType = contentTypeEl ? contentTypeEl.value : "all";
     const subjectSort = subjectSortEl ? subjectSortEl.value : "none";
     const semesterSort = semesterSortEl ? semesterSortEl.value : "none";
 
     const filtered = publicNotes.filter(note => {
-        const searchable = (note.searchText || `${note.title || ""} ${note.subject || ""} ${note.author || ""} ${note.description || ""}`).toLowerCase();
+        const searchable = (note.searchText || `${note.title || ""} ${note.subject || ""} ${note.author || ""} ${note.description || ""} ${note.contentType || ""}`).toLowerCase();
         const inSearch = !search || searchable.includes(search);
 
         const inSubject = subject === "all" || (note.subject || "General") === subject;
         const inSemester = semester === "all" || String(note.semester || 1) === semester;
-        return inSearch && inSubject && inSemester;
+        const inContentType = contentType === "all" || (note.contentType || "note") === contentType;
+        return inSearch && inSubject && inSemester && inContentType;
     });
 
     filtered.sort((a, b) => {
@@ -360,12 +401,13 @@ async function handleNoteSubmit(event) {
     const title = titleEl ? titleEl.value.trim() : "";
     const subject = subjectEl ? subjectEl.value.trim() : "";
     const author = authorEl ? authorEl.value.trim() : "";
+    const contentType = document.getElementById("contentType") ? document.getElementById("contentType").value : "note";
     const semester = semesterEl ? Number(semesterEl.value || 1) : 1;
     const visibility = visibilityEl ? visibilityEl.value : "public";
     const description = descriptionEl ? descriptionEl.value.trim() : "";
     const textContent = textEl ? textEl.value.trim() : "";
 
-    const imageFile = imageEl && imageEl.files ? imageEl.files[0] : null;
+    const imageFiles = imageEl && imageEl.files ? Array.from(imageEl.files) : [];
     const pdfFile = pdfEl && pdfEl.files ? pdfEl.files[0] : null;
     const thumbFile = thumbEl && thumbEl.files ? thumbEl.files[0] : null;
 
@@ -374,22 +416,25 @@ async function handleNoteSubmit(event) {
         return;
     }
 
-    let imageData = existing ? existing.imageData || "" : "";
-    let imageName = existing ? existing.imageName || "" : "";
+    let images = existing && Array.isArray(existing.images) ? [...existing.images] : [];
     let pdfData = existing ? existing.pdfData || "" : "";
     let pdfName = existing ? existing.pdfName || "" : "";
     let thumbnailData = existing ? existing.thumbnailData || "" : "";
 
-    if (imageFile) {
-        if (!imageFile.type.startsWith("image/")) {
-            showAdminMessage("Image must be a valid image file.", true);
+    if (imageFiles.length) {
+        const invalidImage = imageFiles.find(file => !file.type.startsWith("image/"));
+        if (invalidImage) {
+            showAdminMessage("Each image must be a valid image file.", true);
             return;
         }
         try {
-            imageData = await readFileAsDataURL(imageFile);
-            imageName = imageFile.name;
+            const imageEntries = await Promise.all(imageFiles.map(async file => ({
+                data: await readFileAsDataURL(file),
+                name: file.name
+            })));
+            images = existing && imageFiles.length ? imageEntries : imageEntries;
         } catch (error) {
-            showAdminMessage(error.message || "Failed to read image file.", true);
+            showAdminMessage(error.message || "Failed to read image files.", true);
             return;
         }
     }
@@ -421,10 +466,12 @@ async function handleNoteSubmit(event) {
         }
     }
 
-    if (!textContent && !imageData && !pdfData) {
+    if (!textContent && !images.length && !pdfData) {
         showAdminMessage("Add at least one content input: text, image, or PDF.", true);
         return;
     }
+
+    const searchImageText = images.map(image => image.name || "").join(" ");
 
     const payload = {
         id,
@@ -433,13 +480,15 @@ async function handleNoteSubmit(event) {
         subject,
         semester,
         author,
+        contentType,
         visibility,
         description,
         textContent,
         textExcerpt: textContent ? textContent.slice(0, 400) : "",
-        searchText: `${title} ${subject} ${author} ${description} ${textContent.slice(0, 600)}`,
-        imageData,
-        imageName,
+        searchText: `${title} ${subject} ${author} ${description} ${contentType} ${textContent.slice(0, 600)} ${searchImageText}`,
+        images,
+        imageData: images[0]?.data || "",
+        imageName: images[0]?.name || "",
         pdfData,
         pdfName,
         thumbnailData,
@@ -521,13 +570,14 @@ window.editNote = function (noteId) {
     const titleEl = document.getElementById("title");
     const subjectEl = document.getElementById("subject");
     const authorEl = document.getElementById("author");
+    const contentTypeEl = document.getElementById("contentType");
     const semesterEl = document.getElementById("semester");
     const visibilityEl = document.getElementById("visibility");
     const descriptionEl = document.getElementById("description");
     const textEl = document.getElementById("textContent");
     const heading = document.getElementById("formHeading");
 
-    if (!noteIdEl || !titleEl || !subjectEl || !authorEl || !semesterEl || !visibilityEl || !descriptionEl || !textEl) {
+    if (!noteIdEl || !titleEl || !subjectEl || !authorEl || !contentTypeEl || !semesterEl || !visibilityEl || !descriptionEl || !textEl) {
         return;
     }
 
@@ -535,10 +585,15 @@ window.editNote = function (noteId) {
     titleEl.value = note.title || "";
     subjectEl.value = note.subject || "";
     authorEl.value = note.author || "";
+    contentTypeEl.value = note.contentType || "note";
     semesterEl.value = String(note.semester || 1);
     visibilityEl.value = note.visibility || "public";
     descriptionEl.value = note.description || "";
     textEl.value = note.textContent || "";
+
+    if (note.images && note.images.length) {
+        showAdminMessage(`This ${getContentTypeLabel(note).toLowerCase()} already has ${note.images.length} image${note.images.length === 1 ? "" : "s"}. Uploading new images will replace them.`);
+    }
 
     clearFileInputs();
     if (heading) heading.textContent = "Edit Note";

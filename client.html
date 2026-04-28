@@ -75,6 +75,14 @@
                         <option value="8">8th Semester</option>
                     </select>
                 </div>
+                <div class="field" style="min-width:180px;">
+                    <label for="contentTypeFilter">Content Type</label>
+                    <select id="contentTypeFilter" onchange="filterClientNotes()">
+                        <option value="all">All content</option>
+                        <option value="note">Notes</option>
+                        <option value="question-paper">Question Papers</option>
+                    </select>
+                </div>
                 <div class="field" style="min-width:160px;">
                     <label for="subjectSort">Sort Subject</label>
                     <select id="subjectSort" onchange="filterClientNotes()">
@@ -92,6 +100,10 @@
                     </select>
                 </div>
             </div>
+
+                <div class="ad-slot" aria-label="Advertisement placement">
+                    <span>Ad placement</span>
+                </div>
 
             <div id="publicNotesGrid" class="grid">
                 <p class="notice">Loading notes...</p>

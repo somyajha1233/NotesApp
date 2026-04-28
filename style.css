@@ -187,6 +187,50 @@ img { display: block; max-width: 100%; }
   border: 0;
 }
 
+.field-help {
+  font-size: 0.78rem;
+  color: var(--ink-3);
+}
+
+.ad-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  margin: 1.25rem 0;
+  border: 1px dashed rgba(170, 138, 100, 0.5);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(243, 237, 228, 0.92));
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.ad-slot--wide {
+  min-height: 110px;
+}
+
+.content-type-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(28, 18, 9, 0.08);
+  color: var(--ink-2);
+}
+
+.content-type-pill--question-paper {
+  background: rgba(196, 90, 36, 0.12);
+  color: var(--accent-deep);
+}
+
 /* ============================================================
    BUTTONS
    ============================================================ */
@@ -919,4 +963,9 @@ textarea {
   .footer__links { align-items: center; }
 
   .footer__bottom { flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; }
+
+  .ad-slot {
+    min-height: 96px;
+    margin: 1rem 0;
+  }
 }

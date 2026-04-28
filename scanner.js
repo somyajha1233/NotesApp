@@ -43,13 +43,42 @@ function normalizeNote(note) {
     const type = note.type || "";
     const normalized = { ...note };
 
+    if (!normalized.contentType) {
+        normalized.contentType = note.contentType || "note";
+    }
+
+    if (Array.isArray(normalized.images)) {
+        normalized.images = normalized.images
+            .map(image => {
+                if (!image) return null;
+                if (typeof image === "string") {
+                    return { data: image, name: "" };
+                }
+                if (typeof image === "object") {
+                    return {
+                        data: image.data || image.url || image.src || "",
+                        name: image.name || image.fileName || ""
+                    };
+                }
+                return null;
+            })
+            .filter(image => image && image.data);
+    } else if (normalized.imageData) {
+        normalized.images = [
+            typeof normalized.imageData === "string"
+                ? { data: normalized.imageData, name: normalized.imageName || "" }
+                : normalized.imageData
+        ].filter(image => image && image.data);
+    } else {
+        normalized.images = [];
+    }
+
     if (!normalized.semester) {
         normalized.semester = 1;
     }
 
-    if (!normalized.imageData && type === "image" && normalized.fileData) {
-        normalized.imageData = normalized.fileData;
-        normalized.imageName = normalized.fileName || "";
+    if (!normalized.images.length && type === "image" && normalized.fileData) {
+        normalized.images = [{ data: normalized.fileData, name: normalized.fileName || "" }];
     }
 
     if (!normalized.pdfData && type === "pdf" && normalized.fileData) {
@@ -72,8 +101,18 @@ function showNote(note) {
     statusEl.classList.add("hidden");
     contentEl.classList.remove("hidden");
 
-    const imageBlock = note.imageData
-        ? `<img class="note-thumb" style="max-height:460px; object-fit:contain; background:#fff; margin-bottom:0.8rem;" src="${note.imageData}" alt="${escapeHTML(note.title || "Note Image")}">`
+    const images = Array.isArray(note.images) ? note.images : [];
+    const imageBlock = images.length
+        ? `
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.85rem; margin-bottom:0.8rem;">
+                ${images.map((image, index) => `
+                    <figure style="margin:0;">
+                        <img class="note-thumb" style="max-height:460px; object-fit:contain; background:#fff;" src="${image.data}" alt="${escapeHTML(note.title || "Note Image")} ${index + 1}">
+                        ${image.name ? `<figcaption style="font-size:0.78rem; color:#7a6253; margin-top:0.35rem;">${escapeHTML(image.name)}</figcaption>` : ""}
+                    </figure>
+                `).join("")}
+            </div>
+        `
         : "";
 
     const pdfBlock = note.pdfData
@@ -88,6 +127,7 @@ function showNote(note) {
 
     contentEl.innerHTML = `
         <div class="note-meta" style="margin-bottom:0.8rem;">
+            <span class="${note.contentType === "question-paper" ? "content-type-pill content-type-pill--question-paper" : "content-type-pill"}">${escapeHTML(note.contentType === "question-paper" ? "Question Paper" : "Note")}</span>
             <span class="chip">${escapeHTML(note.subject || "General")}</span>
             <span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>
             <span class="chip">${escapeHTML(note.visibility || "public")}</span>
@@ -99,7 +139,7 @@ function showNote(note) {
         ${note.textContent ? `<div class="panel" style="box-shadow:none; background:#fff; border-style:dashed; margin-bottom:0.8rem;"><p style="white-space:pre-wrap;">${escapeHTML(note.textContent)}</p></div>` : ""}
         ${imageBlock}
         ${pdfBlock}
-        ${(!note.textContent && !note.imageData && !note.pdfData) ? '<p class="notice">This note does not contain readable content.</p>' : ""}
+        ${(!note.textContent && !images.length && !note.pdfData) ? '<p class="notice">This note does not contain readable content.</p>' : ""}
     `;
 }
 
