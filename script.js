@@ -262,6 +262,7 @@ function syncURLFromClientFilters() {
 
 function buildNoteCard(note, options = {}) {
     const preview = escapeHTML(getNotePreview(note));
+    const noteHref = `scanner.html?slug=${encodeURIComponent(note.slug || createSlug(note.title))}`;
     const chipsParts = [];
 
     chipsParts.push(`<span class="${getContentTypeClass(note)}">${escapeHTML(getContentTypeLabel(note))}</span>`);
@@ -291,17 +292,22 @@ function buildNoteCard(note, options = {}) {
             <button class="btn danger" onclick="deleteNote('${note.id}')">Delete</button>
         </div>
     `
-        : `<a class="btn" href="scanner.html?slug=${encodeURIComponent(note.slug || createSlug(note.title))}">Open Note</a>`;
+        : `<span class="btn btn--linklike">Open Note</span>`;
+
+    const cardTag = options.admin ? "article" : "a";
+    const cardAttrs = options.admin
+        ? ""
+        : ` href="${noteHref}" aria-label="Open note ${escapeHTML(note.title || 'Untitled')}"`;
 
     return `
-        <article class="note-card">
+        <${cardTag} class="note-card${options.admin ? "" : " note-card--link"}"${cardAttrs}>
             ${chips}
             <h3 class="note-title">${escapeHTML(note.title || "Untitled")}</h3>
             <p class="note-preview">By ${escapeHTML(note.author || "Unknown")} • ${escapeHTML(formatDate(note.updatedAt || note.createdAt))}</p>
             ${getCardVisual(note)}
             <p class="note-preview">${preview}</p>
             ${adminActions}
-        </article>
+        </${cardTag}>
     `;
 }
 
