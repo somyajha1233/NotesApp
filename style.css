@@ -64,10 +64,9 @@ img { display: block; max-width: 100%; }
   top: 0;
   z-index: 100;
   min-height: var(--header-h);
-  background: rgba(249, 246, 241, 0.9);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border-bottom: 1px solid var(--border);
+  background: transparent;
+  border-bottom: 0;
+  padding-top: 1rem;
 }
 
 .header__inner {
@@ -75,9 +74,14 @@ img { display: block; max-width: 100%; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  padding-block: 0.5rem;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  padding: 0.55rem 0.7rem;
+  position: relative;
+  background: rgba(28, 18, 9, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  box-shadow: 0 14px 40px rgba(28, 18, 9, 0.18);
 }
 
 /* Logo */
@@ -88,7 +92,7 @@ img { display: block; max-width: 100%; }
   font-family: "Playfair Display", Georgia, serif;
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--ink);
+  color: #fff;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -106,23 +110,81 @@ img { display: block; max-width: 100%; }
 .nav {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
+  padding: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
 }
 
 .nav__link {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--ink-3);
-  padding: 0.4rem 0.85rem;
+  color: rgba(255, 255, 255, 0.72);
+  padding: 0.5rem 0.95rem;
   border-radius: 999px;
   transition: color 150ms, background 150ms;
 }
 
 .nav__link:hover,
 .nav__link--active {
-  color: var(--accent-deep);
-  background: var(--accent-pale);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-left: auto;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.nav-toggle > span:not(.sr-only) {
+  display: block;
+  width: 16px;
+  height: 2px;
+  border-radius: 999px;
+  background: #fff;
+  position: relative;
+}
+
+.nav-toggle > span:not(.sr-only)::before,
+.nav-toggle > span:not(.sr-only)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 16px;
+  height: 2px;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.header + * {
+  margin-top: 1rem;
+}
+
+.nav-toggle > span:not(.sr-only)::before { top: -5px; }
+.nav-toggle > span:not(.sr-only)::after { top: 5px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ============================================================
@@ -729,7 +791,7 @@ textarea {
     gap: 3rem;
   }
 
-  .hero { padding-block: 56px 48px;align-self: center; }
+  .hero { padding-block: 56px 48px; }
 
   .hero__title { font-size: clamp(2.4rem, 8vw, 3.4rem); }
 
@@ -748,16 +810,32 @@ textarea {
 
   .header__inner { gap: 0.75rem; }
   .logo { font-size: 1.1rem; }
+  .nav-toggle { display: inline-flex; }
   .nav {
+    display: none;
     width: 100%;
-    justify-content: flex-start;
+    justify-content: stretch;
     gap: 0.35rem;
     order: 3;
+    padding: 0.5rem;
+    border-radius: 24px;
+    flex-direction: column;
+    align-items: stretch;
+    background: rgba(28, 18, 9, 0.98);
+    box-shadow: 0 18px 40px rgba(28, 18, 9, 0.24);
   }
-  .nav__link { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
-  .header .btn--outline {
-    margin-left: auto;
-    padding-inline: 1rem;
+  .header--nav-open .nav { display: flex; }
+  .nav__link {
+    width: 100%;
+    padding: 0.75rem 0.95rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .nav__link:hover,
+  .nav__link--active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
   }
 
   .hero { padding-block: 44px 40px; }
@@ -828,5 +906,17 @@ textarea {
 
   .footer__top { padding-bottom: 1.75rem; }
 
-  .footer__bottom { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .footer__brand,
+  .footer__cols,
+  .footer__links,
+  .footer__action {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .footer__action { justify-content: center; }
+
+  .footer__links { align-items: center; }
+
+  .footer__bottom { flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; }
 }

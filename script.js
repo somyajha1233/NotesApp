@@ -579,3 +579,37 @@ const noteForm = document.getElementById("noteForm");
 if (noteForm) {
     noteForm.addEventListener("submit", handleNoteSubmit);
 }
+
+function setupNavigationMenu() {
+    const headers = document.querySelectorAll(".header");
+
+    headers.forEach(header => {
+        const toggle = header.querySelector("[data-nav-toggle]");
+        const nav = header.querySelector(".nav");
+        if (!toggle || !nav) return;
+
+        const closeMenu = () => {
+            header.classList.remove("header--nav-open");
+            toggle.setAttribute("aria-expanded", "false");
+        };
+
+        toggle.addEventListener("click", () => {
+            const isOpen = header.classList.toggle("header--nav-open");
+            toggle.setAttribute("aria-expanded", String(isOpen));
+        });
+
+        nav.addEventListener("click", event => {
+            if (event.target.closest("a")) {
+                closeMenu();
+            }
+        });
+
+        document.addEventListener("click", event => {
+            if (!header.contains(event.target)) {
+                closeMenu();
+            }
+        });
+    });
+}
+
+setupNavigationMenu();
