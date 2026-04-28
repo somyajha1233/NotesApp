@@ -41,6 +41,15 @@ function createId() {
     return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function createSlug(title) {
+    return (title || "")
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "note";
+}
+
 function isPublic(note) {
     return (note.visibility || "public") === "public";
 }
@@ -138,7 +147,7 @@ function buildNoteCard(note, options = {}) {
             <button class="btn danger" onclick="deleteNote('${note.id}')">Delete</button>
         </div>
     `
-        : `<a class="btn" href="scanner.html?id=${encodeURIComponent(note.id)}">Open Note</a>`;
+        : `<a class="btn" href="scanner.html?slug=${encodeURIComponent(note.slug || createSlug(note.title))}">Open Note</a>`;
 
     return `
         <article class="note-card">
@@ -187,7 +196,7 @@ function renderHome() {
 
     latestNotes.innerHTML = latest.length
         ? latest.map(note => buildNoteCard(note)).join("")
-        : '<p class="notice">No public notes yet. Add your first note from Admin Dashboard.</p>';
+        : '<p class="notice">No notes yet. Add your first note from Admin Dashboard.</p>';
 }
 
 function renderClient() {
@@ -419,6 +428,7 @@ async function handleNoteSubmit(event) {
 
     const payload = {
         id,
+        slug: createSlug(title),
         title,
         subject,
         semester,

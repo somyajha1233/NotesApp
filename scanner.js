@@ -105,21 +105,42 @@ function showNote(note) {
 
 async function init() {
     const url = new URL(window.location.href);
+    const noteSlug = url.searchParams.get("slug");
     const noteId = url.searchParams.get("id");
 
-    if (!noteId) {
-        showError("Missing note ID in URL.");
+    if (!noteSlug && !noteId) {
+        showError("Missing note slug in URL.");
         return;
     }
 
     try {
-        const snapshot = await get(ref(db, `notes/items/${noteId}`));
-        if (!snapshot.exists()) {
+        let note = null;
+
+        if (noteSlug) {
+            const snapshot = await get(ref(db, "notes/items"));
+            if (!snapshot.exists()) {
+                showError("Note not found.");
+                return;
+            }
+
+            const allNotes = Object.values(snapshot.val());
+            note = allNotes
+                .map(normalizeNote)
+                .find(item => (item.slug || "") === noteSlug);
+        }
+
+        if (!note && noteId) {
+            const snapshot = await get(ref(db, `notes/items/${noteId}`));
+            if (snapshot.exists()) {
+                note = normalizeNote(snapshot.val());
+            }
+        }
+
+        if (!note) {
             showError("Note not found.");
             return;
         }
 
-        const note = normalizeNote(snapshot.val());
         if ((note.visibility || "public") !== "public") {
             showError("This note is private.");
             return;
@@ -132,3 +153,11 @@ async function init() {
 }
 
 init();
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch(() => {
+            // Ignore registration failures in unsupported environments.
+        });
+    });
+}

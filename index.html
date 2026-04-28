@@ -1,92 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#c74f1d">
-    <title>NotesHost - Share Notes Fast</title>
-    <link rel="icon" type="image/jpeg" href="Logo.jpg">
-    <link rel="apple-touch-icon" href="Logo.jpg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;700&family=Work+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NotesHost — Share Notes Fast</title>
+  <meta name="description" content="NotesHost helps students browse, search, and share semester-wise notes, PDFs, images, and text in a fast mobile-friendly layout." />
+  <meta name="keywords" content="notes, study materials, semester notes, Purvanchal University, PDFs, images, browse notes" />
+  <meta name="author" content="Somya & Team" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="NotesHost — Share Notes Fast" />
+  <meta property="og:description" content="Browse semester-wise notes, PDFs, images, and text in a clean mobile-friendly study hub." />
+  <meta property="og:image" content="Logo.jpg" />
+  <meta property="og:site_name" content="NotesHost" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="NotesHost — Share Notes Fast" />
+  <meta name="twitter:description" content="Browse semester-wise notes, PDFs, images, and text in a clean mobile-friendly study hub." />
+  <link rel="icon" type="image/jpeg" href="Logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "NotesHost",
+        "logo": "Logo.jpg"
+      },
+      {
+        "@type": "WebSite",
+        "name": "NotesHost",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "client.html?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
-
 <body>
-    <header class="site-header">
-        <div class="header-wrap">
-            <a class="brand" href="index.html">
-                <span class="brand-dot"></span>
-                <span class="brand-text">NotesHost</span>
-            </a>
-            <ul class="nav-links">
-                <li><a class="active" href="index.html">Home</a></li>
-                <li><a href="client.html">Browse</a></li>
-                <li><a href="admin.html">Admin</a></li>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="logo">
+        <span class="logo__dot"></span>
+        NotesHost
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="nav__link nav__link--active">Home</a>
+        <a href="client.html" class="nav__link">Browse</a>
+        <a href="admin.html" class="nav__link">Admin</a>
+      </nav>
+      <a href="client.html" class="btn btn--outline">Explore Notes</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero__inner">
+
+      <div class="hero__left">
+        <span class="badge">Purvanchal University &nbsp;·&nbsp; Semester 1–8</span>
+        <h1 class="hero__title">
+          Your notes,<br />
+          <em>beautifully</em><br />
+          organised.
+        </h1>
+        <p class="hero__desc">
+          Subject-wise study material — PDFs, images, and text — for every semester. Find what you need, fast.
+        </p>
+        <div class="hero__actions">
+          <a href="client.html" class="btn btn--primary">Browse Notes</a>
+          <a href="admin.html" class="btn btn--ghost">Upload Notes</a>
+        </div>
+      </div>
+
+      <div class="hero__right">
+        <div class="info-card">
+          <p class="info-card__label">What's inside</p>
+          <ul class="info-card__list">
+            <li>
+              <span class="info-card__icon">✦</span>
+              <div>
+                <strong>All 8 semesters</strong>
+                <span>Complete coverage, 1st to 8th</span>
+              </div>
+            </li>
+            <li>
+              <span class="info-card__icon">✦</span>
+              <div>
+                <strong>Subject-wise browsing</strong>
+                <span>Filter and sort instantly</span>
+              </div>
+            </li>
+            <li>
+              <span class="info-card__icon">✦</span>
+              <div>
+                <strong>Multiple formats</strong>
+                <span>Text, PDF, and images</span>
+              </div>
+            </li>
+            <li>
+              <span class="info-card__icon">✦</span>
+              <div>
+                <strong>Fast search</strong>
+                <span>Zero friction interface</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- LATEST NOTES -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <div>
+          <h2 class="section__title">Latest Notes</h2>
+          <p class="section__sub">Recently uploaded study material</p>
+        </div>
+        <a href="client.html" class="btn btn--ghost">See all →</a>
+      </div>
+      <div class="grid" id="latestNotes">
+        <p class="notice">Loading notes…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <span class="footer__name">NotesHost.</span>
+          <p>Refined notes hosting for the modern classroom. Share text, image, and PDF resources with elegant simplicity.</p>
+        </div>
+        <div class="footer__cols">
+          <div>
+            <h4 class="footer__heading">Navigate</h4>
+            <ul class="footer__links">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="client.html">Browse Notes</a></li>
             </ul>
-            <a class="btn secondary" href="client.html">Explore Notes</a>
+          </div>
+          <div>
+            <h4 class="footer__heading">Resources</h4>
+            <ul class="footer__links">
+              <li><a href="admin.html">Admin</a></li>
+              <li><a href="scanner.html">Note Detail</a></li>
+            </ul>
+          </div>
+          <div class="footer__action">
+            <a href="Documentation.docx" class="btn btn--outline btn--sm" download>Docs ↓</a>
+          </div>
         </div>
-    </header>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2025 NotesHost</span>
+        <span class="footer__team">Somya &amp; Team</span>
+      </div>
+    </div>
+  </footer>
 
-    <main class="container">
-        <section class="hero panel hero-welcome">
-            <span class="welcome-badge">Academic Notes Hub</span>
-            <h1 class="hero-title">Elegant notes hosting for every semester.</h1>
-            <p>
-                One calm, focused place for text notes, images, and PDFs. Built for students who want to find the
-                right material quickly and start learning without distractions.
-            </p>
-            <div class="hero-actions">
-                <a class="btn" href="client.html">Go to Notes</a>
-                <a class="btn secondary" href="admin.html">Open Admin</a>
-            </div>
-        </section>
-
-        <section class="panel">
-            <div class="section-head">
-                <h2>Latest Public Notes</h2>
-                <a class="btn secondary" href="client.html">See All</a>
-            </div>
-            <div class="grid" id="latestNotes">
-                <p class="notice">Loading notes...</p>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="footer-team-name-bg">Somya & Team</div>
-        <div class="footer-container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <h3 class="footer-brand-title">NotesHost.</h3>
-                    <p class="footer-brand-desc">Refined notes hosting for the modern classroom. Share text, image,
-                        and PDF resources with elegant simplicity.</p>
-                </div>
-                <div class="footer-links">
-                    <h4>Navigate</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="client.html">Browse Notes</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="admin.html">Admin</a></li>
-                        <li><a href="scanner.html">Note Detail</a></li>
-                    </ul>
-                </div>
-                <div class="footer-action">
-                    <a href="Documentation.docx" class="btn-docs" download>Docs</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <script type="module" src="script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
-
 </html>

@@ -2,40 +2,47 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#c74f1d">
-    <title>Browse Notes - NotesHost</title>
-    <link rel="icon" type="image/jpeg" href="Logo.jpg">
-    <link rel="apple-touch-icon" href="Logo.jpg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;700&family=Work+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browse Notes — NotesHost</title>
+    <meta name="description" content="Browse semester-wise NotesHost study material with search, subject filters, semester filters, and fast mobile-friendly navigation." />
+    <meta name="author" content="Somya & Team" />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Browse Notes — NotesHost" />
+    <meta property="og:description" content="Search and filter semester-wise notes, PDFs, images, and text on NotesHost." />
+    <meta property="og:image" content="Logo.jpg" />
+    <meta property="og:site_name" content="NotesHost" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Browse Notes — NotesHost" />
+    <meta name="twitter:description" content="Search and filter semester-wise notes, PDFs, images, and text on NotesHost." />
+    <link rel="icon" type="image/jpeg" href="Logo.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-    <header class="site-header">
-        <div class="header-wrap">
-            <a class="brand" href="index.html">
-                <span class="brand-dot"></span>
-                <span class="brand-text">NotesHost</span>
-            </a>
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a class="active" href="client.html">Browse</a></li>
-                <li><a href="admin.html">Admin</a></li>
-            </ul>
-            <a class="btn secondary" href="admin.html">Upload Notes</a>
-        </div>
-    </header>
+        <header class="header">
+            <div class="wrap header__inner">
+                <a href="index.html" class="logo">
+                    <span class="logo__dot"></span>
+                    NotesHost
+                </a>
+                <nav class="nav">
+                    <a href="index.html" class="nav__link">Home</a>
+                    <a href="client.html" class="nav__link nav__link--active">Browse</a>
+                    <a href="admin.html" class="nav__link">Admin</a>
+                </nav>
+                <a href="client.html" class="btn btn--outline">Explore Notes</a>
+            </div>
+        </header>
 
     <main class="container">
         <section class="panel">
             <div class="section-head">
-                <h2>Public Notes</h2>
+                <h2>Notes</h2>
                 <span id="clientResultCount" class="chip">0 results</span>
             </div>
 
@@ -84,7 +91,7 @@
             </div>
 
             <div id="publicNotesGrid" class="grid">
-                <p class="notice">Loading public notes...</p>
+                <p class="notice">Loading notes...</p>
             </div>
             <div id="clientLoadMoreWrap" class="actions" style="justify-content:center; margin-top:1rem;">
                 <button id="clientLoadMoreBtn" class="btn secondary" type="button" onclick="loadMoreClientNotes()">Load More</button>
@@ -92,35 +99,39 @@
         </section>
     </main>
 
-    <footer class="footer">
-        <div class="footer-team-name-bg">Somya & Team</div>
-        <div class="footer-container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <h3 class="footer-brand-title">NotesHost.</h3>
-                    <p class="footer-brand-desc">Refined notes hosting for the modern classroom. Share text, image,
-                        and PDF resources with elegant simplicity.</p>
+        <footer class="footer">
+            <div class="wrap footer__inner">
+                <div class="footer__top">
+                    <div class="footer__brand">
+                        <span class="footer__name">NotesHost.</span>
+                        <p>Refined notes hosting for the modern classroom. Share text, image, and PDF resources with elegant simplicity.</p>
+                    </div>
+                    <div class="footer__cols">
+                        <div>
+                            <h4 class="footer__heading">Navigate</h4>
+                            <ul class="footer__links">
+                                <li><a href="index.html">Home</a></li>
+                                <li><a href="client.html">Browse Notes</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="footer__heading">Resources</h4>
+                            <ul class="footer__links">
+                                <li><a href="admin.html">Admin</a></li>
+                                <li><a href="scanner.html">Note Detail</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer__action">
+                            <a href="Documentation.docx" class="btn btn--outline btn--sm" download>Docs ↓</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="footer-links">
-                    <h4>Navigate</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="client.html">Browse Notes</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="admin.html">Admin</a></li>
-                        <li><a href="scanner.html">Note Detail</a></li>
-                    </ul>
-                </div>
-                <div class="footer-action">
-                    <a href="Documentation.docx" class="btn-docs" download>Docs</a>
+                <div class="footer__bottom">
+                    <span>© 2025 NotesHost</span>
+                    <span class="footer__team">Somya &amp; Team</span>
                 </div>
             </div>
-        </div>
-    </footer>
+        </footer>
     <script type="module" src="script.js"></script>
 </body>
 

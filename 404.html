@@ -4,18 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Note Details — NotesHost</title>
-    <meta name="description" content="View a NotesHost note with text, images, and PDFs in a clean reader layout." />
+    <title>Page Not Found — NotesHost</title>
+    <meta name="description" content="The requested NotesHost page could not be found." />
+    <meta name="robots" content="noindex, nofollow" />
     <meta name="author" content="Somya & Team" />
-    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content="Note Details — NotesHost" />
-    <meta property="og:description" content="View a NotesHost note with text, images, and PDFs." />
-    <meta property="og:image" content="Logo.jpg" />
-    <meta property="og:site_name" content="NotesHost" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Note Details — NotesHost" />
-    <meta name="twitter:description" content="View a NotesHost note with text, images, and PDFs." />
     <link rel="icon" type="image/jpeg" href="Logo.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,18 +24,26 @@
                 </a>
                 <nav class="nav">
                     <a href="index.html" class="nav__link">Home</a>
-                    <a href="client.html" class="nav__link nav__link--active">Browse</a>
+                    <a href="client.html" class="nav__link">Browse</a>
                     <a href="admin.html" class="nav__link">Admin</a>
                 </nav>
-                <a href="client.html" class="btn btn--outline">Explore Notes</a>
+                <a href="index.html" class="btn btn--outline">Explore Notes</a>
             </div>
         </header>
 
     <main class="container">
-        <article class="panel" id="noteDetailPanel">
-            <p class="notice" id="noteDetailStatus">Loading note details...</p>
-            <div id="noteDetailContent" class="hidden"></div>
-        </article>
+        <section class="hero panel hero-welcome">
+            <span class="welcome-badge">404</span>
+            <h1 class="hero-title">This page could not be found.</h1>
+            <p>
+                The note or route you were looking for doesn’t exist or has been moved.
+                Return home or browse the notes to continue.
+            </p>
+            <div class="hero-actions">
+                <a class="btn" href="index.html">Back to Home</a>
+                <a class="btn secondary" href="client.html">Browse Notes</a>
+            </div>
+        </section>
     </main>
 
         <footer class="footer">
@@ -79,7 +79,6 @@
                 </div>
             </div>
         </footer>
-    <script type="module" src="scanner.js"></script>
 </body>
 
 </html>
