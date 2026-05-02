@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+Disallow: /admin.html
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin.html
+
+# Sitemap location
+Sitemap: https://www.somyakumarjha.com.np/sitemap.xml
+
+# Crawl delay (optional, in seconds)
+Crawl-delay: 1

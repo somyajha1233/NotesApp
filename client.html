@@ -4,19 +4,23 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Browse Notes — NotesHost</title>
-    <meta name="description" content="Browse semester-wise NotesHost study material with search, semester filters, and fast mobile-friendly navigation." />
+    <title>Browse Bachelor's Notes, Question Papers & Syllabi — NotesHost</title>
+    <meta name="description" content="Browse semester-wise bachelor's notes, question papers, and syllabi for TU, PU, KU, and all Nepalese universities with advanced search and filters." />
+    <meta name="keywords" content="bachelor's notes, question bank, TU question papers, PU notes, KU syllabi, semester notes, engineering notes, BCA notes, study materials, PDF" />
     <meta name="author" content="Somya & Team" />
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta name="subject" content="Education - Study Materials" />
+    <meta property="og:url" content="https://www.somyakumarjha.com.np/client.html" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Browse Notes — NotesHost" />
-    <meta property="og:description" content="Search and filter semester-wise notes, PDFs, images, and text on NotesHost." />
+    <meta property="og:title" content="Browse Bachelor's Notes & Question Papers — NotesHost" />
+    <meta property="og:description" content="Search and filter bachelor's notes, question papers, and syllabi by semester, subject, and university." />
     <meta property="og:image" content="Logo.jpg" />
     <meta property="og:site_name" content="NotesHost" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Browse Notes — NotesHost" />
-    <meta name="twitter:description" content="Search and filter semester-wise notes, PDFs, images, and text on NotesHost." />
+    <meta name="twitter:title" content="Browse Bachelor's Notes & Question Papers — NotesHost" />
+    <meta name="twitter:description" content="Search bachelor's notes, question papers, and syllabi organized by semester and subject." />
     <link rel="icon" type="image/jpeg" href="Logo.jpg" />
+    <link rel="canonical" href="https://www.somyakumarjha.com.np/client.html" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet" />
@@ -96,11 +100,28 @@
                         <option value="desc">High to Low</option>
                     </select>
                 </div>
+                <div class="field" style="min-width:220px;">
+                    <label for="subjectFilter">Subject</label>
+                    <select id="subjectFilter" onchange="filterClientNotes()">
+                        <option value="all">All subjects</option>
+                    </select>
+                </div>
+                <div class="field" style="min-width:180px;">
+                    <label for="materialTypeFilter">Material Type</label>
+                    <select id="materialTypeFilter" onchange="filterClientNotes()">
+                        <option value="all">All material</option>
+                        <option value="text">Text</option>
+                        <option value="pdf">PDF</option>
+                        <option value="image">Images</option>
+                    </select>
+                </div>
             </div>
 
                 <div class="ad-slot" aria-label="Advertisement placement">
                     <span>Ad placement</span>
                 </div>
+
+            <p id="branchPath" class="branch-path" aria-live="polite">All Faculties / All Semesters / All Subjects / All Content</p>
 
             <div id="publicNotesGrid" class="grid">
                 <p class="notice">Loading notes...</p>

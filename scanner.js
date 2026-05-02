@@ -119,13 +119,15 @@ function showNote(note) {
         `
         : "";
 
-    const pdfBlock = note.pdfData
+    const pdfSource = note.pdfUrl || note.pdfData || "";
+
+    const pdfBlock = pdfSource
         ? `
             <div class="actions" style="margin:0.8rem 0;">
-                <a class="btn" href="${note.pdfData}" download="${escapeHTML(note.pdfName || "note.pdf")}">Download PDF</a>
-                <a class="btn secondary" href="${note.pdfData}" target="_blank" rel="noopener noreferrer">Open PDF</a>
+                <a class="btn" href="${pdfSource}" download="${escapeHTML(note.pdfName || "note.pdf")}">Download PDF</a>
+                <a class="btn secondary" href="${pdfSource}" target="_blank" rel="noopener noreferrer">Open PDF</a>
             </div>
-            <iframe src="${note.pdfData}" title="PDF note" style="width:100%; min-height:560px; border:1px solid #e5d8c6; border-radius:12px;"></iframe>
+            <iframe src="${pdfSource}" title="PDF note" style="width:100%; min-height:560px; border:1px solid #e5d8c6; border-radius:12px;"></iframe>
         `
         : "";
 
@@ -152,7 +154,7 @@ function showNote(note) {
         ${note.textContent ? `<div class="panel" style="box-shadow:none; background:#fff; border-style:dashed; margin-bottom:0.8rem;"><p style="white-space:pre-wrap;">${escapeHTML(note.textContent)}</p></div>` : ""}
         ${imageBlock}
         ${pdfBlock}
-        ${(!note.textContent && !images.length && !note.pdfData) ? '<p class="notice">This note does not contain readable content.</p>' : ""}
+        ${(!note.textContent && !images.length && !pdfSource) ? '<p class="notice">This note does not contain readable content.</p>' : ""}
     `;
 }
 

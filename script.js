@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 import { getDatabase, limitToLast, onValue, orderByChild, query, ref, remove, set } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+import { getDownloadURL, getStorage, ref as storageRef, uploadBytes } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBh1s2S6rZe9zK4DLWpZUcpXtXZolEBQlI",
@@ -14,6 +15,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const storage = getStorage(app);
 const auth = getAuth(app);
 const notesRef = ref(db, "notes/items");
 const publicNotesQuery = query(notesRef, orderByChild("updatedAt"), limitToLast(150));
@@ -147,6 +149,30 @@ function readFileAsDataURL(file) {
     });
 }
 
+function createStorageSafeName(fileName = "file") {
+    return fileName
+        .toString()
+        .trim()
+        .replace(/[^a-zA-Z0-9._-]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "file";
+}
+
+async function uploadPdfToStorage(noteId, pdfFile) {
+    const safeName = createStorageSafeName(pdfFile.name || "note.pdf");
+    const filePath = `notes/pdfs/${noteId}/${Date.now()}_${safeName}`;
+    const fileRef = storageRef(storage, filePath);
+
+    await uploadBytes(fileRef, pdfFile, {
+        contentType: "application/pdf"
+    });
+
+    const pdfUrl = await getDownloadURL(fileRef);
+    return {
+        pdfUrl,
+        pdfName: pdfFile.name || "note.pdf"
+    };
+}
+
 function getSemesterLabel(semester) {
     const value = Number(semester) || 1;
     const suffixMap = { 1: "st", 2: "nd", 3: "rd" };
@@ -157,16 +183,16 @@ function getSemesterLabel(semester) {
 function getNotePreview(note) {
     if (note.description && note.description.trim()) return note.description.trim();
     if (note.textContent) return note.textContent.slice(0, 140);
-    if (note.images && note.images.length && note.pdfData) return `Contains ${note.images.length} image${note.images.length === 1 ? "" : "s"} and PDF`;
+    if (note.images && note.images.length && (note.pdfData || note.pdfUrl)) return `Contains ${note.images.length} image${note.images.length === 1 ? "" : "s"} and PDF`;
     if (note.images && note.images.length) return `Contains ${note.images.length} image${note.images.length === 1 ? "" : "s"}`;
-    if (note.pdfData) return note.pdfName ? `PDF: ${note.pdfName}` : "Contains PDF";
+    if (note.pdfData || note.pdfUrl) return note.pdfName ? `PDF: ${note.pdfName}` : "Contains PDF";
     return "No preview available";
 }
 
 function getNoteKind(note) {
     const hasText = !!(note.textContent && note.textContent.trim());
     const hasImage = !!(note.images && note.images.length);
-    const hasPdf = !!note.pdfData;
+    const hasPdf = !!(note.pdfData || note.pdfUrl);
 
     if (hasText && hasImage && hasPdf) return "TEXT + IMAGE + PDF";
     if (hasText && hasImage) return "TEXT + IMAGE";
@@ -198,6 +224,92 @@ function getFacultyLabel(faculty) {
     return "Others";
 }
 
+function normalizeSubject(subject) {
+    return (subject || "").toString().trim().toLowerCase();
+}
+
+function getResourceFlags(note) {
+    const hasText = !!(note.textContent && note.textContent.trim());
+    const hasPdf = !!(note.pdfData || note.pdfUrl);
+    const hasImage = !!(note.images && note.images.length);
+    return { hasText, hasPdf, hasImage };
+}
+
+function matchesMaterialType(note, materialType) {
+    if (!materialType || materialType === "all") return true;
+    const flags = getResourceFlags(note);
+    if (materialType === "text") return flags.hasText;
+    if (materialType === "pdf") return flags.hasPdf;
+    if (materialType === "image") return flags.hasImage;
+    return true;
+}
+
+function computeSubjectSummaries(notes) {
+    const summaryMap = new Map();
+
+    notes.forEach(note => {
+        const key = normalizeSubject(note.subject);
+        if (!key) return;
+
+        if (!summaryMap.has(key)) {
+            summaryMap.set(key, {
+                key,
+                label: (note.subject || "").trim(),
+                total: 0,
+                text: 0,
+                pdf: 0,
+                image: 0
+            });
+        }
+
+        const summary = summaryMap.get(key);
+        summary.total += 1;
+
+        const flags = getResourceFlags(note);
+        if (flags.hasText) summary.text += 1;
+        if (flags.hasPdf) summary.pdf += 1;
+        if (flags.hasImage) summary.image += 1;
+    });
+
+    return Array.from(summaryMap.values()).sort((a, b) => {
+        if (b.total !== a.total) return b.total - a.total;
+        return a.label.localeCompare(b.label);
+    });
+}
+
+function updateSubjectFilterOptions(subjectSummaries) {
+    const subjectEl = document.getElementById("subjectFilter");
+    if (!subjectEl) return;
+
+    const currentValue = subjectEl.value || "all";
+    const options = ['<option value="all">All subjects</option>'];
+
+    subjectSummaries.forEach(item => {
+        options.push(`<option value="${escapeHTML(item.key)}">${escapeHTML(item.label)} (${item.total})</option>`);
+    });
+
+    subjectEl.innerHTML = options.join("\n");
+
+    const optionExists = subjectSummaries.some(item => item.key === currentValue);
+    subjectEl.value = optionExists ? currentValue : "all";
+}
+
+function renderBranchPath(subjectSummaries, filters) {
+    const pathEl = document.getElementById("branchPath");
+    if (!pathEl) return;
+
+    const facultyLabel = filters.faculty === "all" ? "All Faculties" : getFacultyLabel(filters.faculty);
+    const semesterLabel = filters.semester === "all" ? "All Semesters" : getSemesterLabel(filters.semester);
+    const contentTypeLabel = filters.contentType === "all"
+        ? "All Content"
+        : (filters.contentType === "question-paper" ? "Question Papers" : (filters.contentType === "syllabus" ? "Syllabus" : "Notes"));
+    const subjectLabel = filters.subject === "all"
+        ? "All Subjects"
+        : (subjectSummaries.find(item => item.key === filters.subject)?.label || "Selected Subject");
+
+    pathEl.textContent = `${facultyLabel} / ${semesterLabel} / ${subjectLabel} / ${contentTypeLabel}`;
+}
+
 function getCardVisual(note) {
     const visual = note.thumbnailData || (note.images && note.images[0] ? note.images[0].data : "") || "";
     if (!visual) return "";
@@ -215,6 +327,8 @@ function syncClientFiltersFromURL() {
     const semesterEl = document.getElementById("semesterFilter");
     const contentTypeEl = document.getElementById("contentTypeFilter");
     const facultyEl = document.getElementById("facultyFilter");
+    const subjectEl = document.getElementById("subjectFilter");
+    const materialTypeEl = document.getElementById("materialTypeFilter");
 
     if (searchEl && params.get("search")) {
         searchEl.value = params.get("search") || "";
@@ -227,6 +341,12 @@ function syncClientFiltersFromURL() {
     }
     if (facultyEl && params.get("faculty")) {
         facultyEl.value = params.get("faculty") || "all";
+    }
+    if (subjectEl && params.get("subject")) {
+        subjectEl.value = params.get("subject") || "all";
+    }
+    if (materialTypeEl && params.get("materialType")) {
+        materialTypeEl.value = params.get("materialType") || "all";
     }
 
     clientFiltersInitialized = true;
@@ -241,12 +361,16 @@ function syncURLFromClientFilters() {
     const semesterEl = document.getElementById("semesterFilter");
     const contentTypeEl = document.getElementById("contentTypeFilter");
     const facultyEl = document.getElementById("facultyFilter");
+    const subjectEl = document.getElementById("subjectFilter");
+    const materialTypeEl = document.getElementById("materialTypeFilter");
 
     const entries = [
         ["search", searchEl ? searchEl.value.trim() : ""],
         ["semester", semesterEl ? semesterEl.value : "all"],
         ["contentType", contentTypeEl ? contentTypeEl.value : "all"],
-        ["faculty", facultyEl ? facultyEl.value : "all"]
+        ["faculty", facultyEl ? facultyEl.value : "all"],
+        ["subject", subjectEl ? subjectEl.value : "all"],
+        ["materialType", materialTypeEl ? materialTypeEl.value : "all"]
     ];
 
     entries.forEach(([key, value]) => {
@@ -329,7 +453,7 @@ function renderHome() {
 
     if (totalNotesCount) totalNotesCount.textContent = String(publicNotes.length);
     if (textNotesCount) textNotesCount.textContent = String(publicNotes.filter(note => note.textContent && note.textContent.trim()).length);
-    if (fileNotesCount) fileNotesCount.textContent = String(publicNotes.filter(note => (note.images && note.images.length) || note.pdfData).length);
+    if (fileNotesCount) fileNotesCount.textContent = String(publicNotes.filter(note => (note.images && note.images.length) || note.pdfData || note.pdfUrl).length);
 
     latestNotes.innerHTML = latest.length
         ? latest.map(note => buildNoteCard(note)).join("")
@@ -345,6 +469,8 @@ function renderClient() {
     const contentTypeEl = document.getElementById("contentTypeFilter");
     const facultyEl = document.getElementById("facultyFilter");
     const semesterSortEl = document.getElementById("semesterSort");
+    const subjectEl = document.getElementById("subjectFilter");
+    const materialTypeEl = document.getElementById("materialTypeFilter");
     const countEl = document.getElementById("clientResultCount");
     const loadMoreWrap = document.getElementById("clientLoadMoreWrap");
     const loadMoreBtn = document.getElementById("clientLoadMoreBtn");
@@ -364,15 +490,33 @@ function renderClient() {
     const contentType = contentTypeEl ? contentTypeEl.value : "all";
     const faculty = facultyEl ? facultyEl.value : "all";
     const semesterSort = semesterSortEl ? semesterSortEl.value : "none";
+    const materialType = materialTypeEl ? materialTypeEl.value : "all";
 
-    const filtered = publicNotes.filter(note => {
-        const searchable = (note.searchText || `${note.title || ""} ${note.subject || ""} ${note.author || ""} ${note.description || ""} ${note.contentType || ""} ${note.faculty || ""}`).toLowerCase();
-        const inSearch = !search || searchable.includes(search);
-
+    const branchPool = publicNotes.filter(note => {
         const inSemester = semester === "all" || String(note.semester || 1) === semester;
         const inContentType = contentType === "all" || (note.contentType || "note") === contentType;
         const inFaculty = faculty === "all" || (note.faculty || "others") === faculty;
-        return inSearch && inSemester && inContentType && inFaculty;
+        return inSemester && inContentType && inFaculty;
+    });
+
+    const subjectSummaries = computeSubjectSummaries(branchPool);
+    updateSubjectFilterOptions(subjectSummaries);
+    const subject = subjectEl ? (subjectEl.value || "all") : "all";
+
+    renderBranchPath(subjectSummaries, {
+        faculty,
+        semester,
+        contentType,
+        subject,
+        materialType
+    });
+
+    const filtered = branchPool.filter(note => {
+        const searchable = (note.searchText || `${note.title || ""} ${note.subject || ""} ${note.author || ""} ${note.description || ""} ${note.contentType || ""} ${note.faculty || ""}`).toLowerCase();
+        const inSearch = !search || searchable.includes(search);
+        const inSubject = subject === "all" || normalizeSubject(note.subject) === subject;
+        const inMaterialType = matchesMaterialType(note, materialType);
+        return inSearch && inSubject && inMaterialType;
     });
 
     filtered.sort((a, b) => {
@@ -527,6 +671,7 @@ async function handleNoteSubmit(event) {
 
     let images = existing && Array.isArray(existing.images) ? [...existing.images] : [];
     let pdfData = existing ? existing.pdfData || "" : "";
+    let pdfUrl = existing ? existing.pdfUrl || "" : "";
     let pdfName = existing ? existing.pdfName || "" : "";
     let thumbnailData = existing ? existing.thumbnailData || "" : "";
 
@@ -554,10 +699,12 @@ async function handleNoteSubmit(event) {
             return;
         }
         try {
-            pdfData = await readFileAsDataURL(pdfFile);
-            pdfName = pdfFile.name;
+            const uploadedPdf = await uploadPdfToStorage(id, pdfFile);
+            pdfUrl = uploadedPdf.pdfUrl;
+            pdfName = uploadedPdf.pdfName;
+            pdfData = "";
         } catch (error) {
-            showAdminMessage(error.message || "Failed to read PDF file.", true);
+            showAdminMessage(error.message || "Failed to upload PDF file.", true);
             return;
         }
     }
@@ -575,7 +722,7 @@ async function handleNoteSubmit(event) {
         }
     }
 
-    if (!textContent && !images.length && !pdfData) {
+    if (!textContent && !images.length && !pdfData && !pdfUrl) {
         showAdminMessage("Add at least one content input: text, image, or PDF.", true);
         return;
     }
@@ -600,6 +747,7 @@ async function handleNoteSubmit(event) {
         imageData: images[0]?.data || "",
         imageName: images[0]?.name || "",
         pdfData,
+        pdfUrl,
         pdfName,
         thumbnailData,
         createdAt: existing ? existing.createdAt : Date.now(),
@@ -620,6 +768,22 @@ window.filterClientNotes = function () {
     resetClientPagination();
     renderClient();
     syncURLFromClientFilters();
+};
+
+window.openSubjectMaterial = function (subjectKey, materialType = "all") {
+    const decodedSubject = subjectKey ? decodeURIComponent(subjectKey) : "all";
+    const subjectEl = document.getElementById("subjectFilter");
+    const materialTypeEl = document.getElementById("materialTypeFilter");
+
+    if (subjectEl) {
+        subjectEl.value = decodedSubject || "all";
+    }
+    if (materialTypeEl) {
+        materialTypeEl.value = materialType || "all";
+    }
+
+    window.filterClientNotes();
+    document.getElementById("publicNotesGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
 window.loadMoreClientNotes = function () {
