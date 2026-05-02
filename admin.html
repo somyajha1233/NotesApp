@@ -131,15 +131,27 @@
 
                     <div class="row">
                         <div class="field">
+                            <label for="university">University</label>
+                            <select id="university" required>
+                                <option value="others">Others</option>
+                                <option value="tu">Tribhuvan University</option>
+                                <option value="ku">Kathmandu University</option>
+                                <option value="pu">Purbanchal University</option>
+                                <option value="poun">Pokhara University</option>
+                            </select>
+                        </div>
+                        <div class="field">
                             <label for="visibility">Visibility</label>
                             <select id="visibility">
                                 <option value="public">Public</option>
                                 <option value="private">Private</option>
                             </select>
                         </div>
-                        <div class="field">
-                            <label for="description">Short Description</label>
-                            <input id="description" type="text" placeholder="One-line summary for cards">
+                    </div>
+
+                    <div class="field">
+                        <label for="description">Short Description</label>
+                        <input id="description" type="text" placeholder="One-line summary for cards">
                         </div>
                     </div>
 

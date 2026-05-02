@@ -92,6 +92,16 @@
                         <option value="bit">BIT</option>
                     </select>
                 </div>
+                <div class="field" style="min-width:200px;">
+                    <label for="universityFilter">University</label>
+                    <select id="universityFilter" onchange="filterClientNotes()">
+                        <option value="all">All universities</option>
+                        <option value="tu">Tribhuvan University</option>
+                        <option value="ku">Kathmandu University</option>
+                        <option value="pu">Purbanchal University</option>
+                        <option value="poun">Pokhara University</option>
+                    </select>
+                </div>
                 <div class="field" style="min-width:160px;">
                     <label for="semesterSort">Sort Semester</label>
                     <select id="semesterSort" onchange="filterClientNotes()">
@@ -121,7 +131,7 @@
                     <span>Ad placement</span>
                 </div>
 
-            <p id="branchPath" class="branch-path" aria-live="polite">All Faculties / All Semesters / All Subjects / All Content</p>
+            <p id="branchPath" class="branch-path" aria-live="polite">All Universities / All Faculties / All Semesters / All Subjects / All Content</p>
 
             <div id="publicNotesGrid" class="grid">
                 <p class="notice">Loading notes...</p>

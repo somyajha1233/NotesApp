@@ -1,14 +1,14 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { get, getDatabase, ref } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { get, getDatabase, ref } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBh1s2S6rZe9zK4DLWpZUcpXtXZolEBQlI",
-    authDomain: "webapp-e8b28.firebaseapp.com",
-    projectId: "webapp-e8b28",
-    storageBucket: "webapp-e8b28.firebasestorage.app",
-    messagingSenderId: "126884302653",
-    appId: "1:126884302653:web:2e0ab14def6bad3361ff54",
-    measurementId: "G-GJVK5R349Q"
+    apiKey: "AIzaSyBPUpuoCS4buG47IJ6ns_OCIbt3YnekK3M",
+    authDomain: "my-uni-notes.firebaseapp.com",
+    databaseURL: "https://my-uni-notes-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "my-uni-notes",
+    storageBucket: "my-uni-notes.firebasestorage.app",
+    messagingSenderId: "379227696615",
+    appId: "1:379227696615:web:5c89d6419b4584ab9da142"
 };
 
 const app = initializeApp(firebaseConfig);

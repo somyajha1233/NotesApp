@@ -1,16 +1,16 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-import { getDatabase, limitToLast, onValue, orderByChild, query, ref, remove, set } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
-import { getDownloadURL, getStorage, ref as storageRef, uploadBytes } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-storage.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getDatabase, limitToLast, onValue, orderByChild, query, ref, remove, set } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+import { getDownloadURL, getStorage, ref as storageRef, uploadBytes } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBh1s2S6rZe9zK4DLWpZUcpXtXZolEBQlI",
-    authDomain: "webapp-e8b28.firebaseapp.com",
-    projectId: "webapp-e8b28",
-    storageBucket: "webapp-e8b28.firebasestorage.app",
-    messagingSenderId: "126884302653",
-    appId: "1:126884302653:web:2e0ab14def6bad3361ff54",
-    measurementId: "G-GJVK5R349Q"
+    apiKey: "AIzaSyBPUpuoCS4buG47IJ6ns_OCIbt3YnekK3M",
+    authDomain: "my-uni-notes.firebaseapp.com",
+    databaseURL: "https://my-uni-notes-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "my-uni-notes",
+    storageBucket: "my-uni-notes.firebasestorage.app",
+    messagingSenderId: "379227696615",
+    appId: "1:379227696615:web:5c89d6419b4584ab9da142"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -92,6 +92,10 @@ function normalizeNote(note) {
 
     if (!normalized.faculty) {
         normalized.faculty = note.faculty || "others";
+    }
+
+    if (!normalized.university) {
+        normalized.university = note.university || "others";
     }
 
     if (Array.isArray(normalized.images)) {
@@ -224,6 +228,15 @@ function getFacultyLabel(faculty) {
     return "Others";
 }
 
+function getUniversityLabel(university) {
+    const value = (university || "").toLowerCase();
+    if (value === "tu") return "Tribhuvan University";
+    if (value === "ku") return "Kathmandu University";
+    if (value === "pu") return "Purbanchal University";
+    if (value === "poun") return "Pokhara University";
+    return "Others";
+}
+
 function normalizeSubject(subject) {
     return (subject || "").toString().trim().toLowerCase();
 }
@@ -298,6 +311,7 @@ function renderBranchPath(subjectSummaries, filters) {
     const pathEl = document.getElementById("branchPath");
     if (!pathEl) return;
 
+    const universityLabel = filters.university === "all" ? "All Universities" : getUniversityLabel(filters.university);
     const facultyLabel = filters.faculty === "all" ? "All Faculties" : getFacultyLabel(filters.faculty);
     const semesterLabel = filters.semester === "all" ? "All Semesters" : getSemesterLabel(filters.semester);
     const contentTypeLabel = filters.contentType === "all"
@@ -307,7 +321,7 @@ function renderBranchPath(subjectSummaries, filters) {
         ? "All Subjects"
         : (subjectSummaries.find(item => item.key === filters.subject)?.label || "Selected Subject");
 
-    pathEl.textContent = `${facultyLabel} / ${semesterLabel} / ${subjectLabel} / ${contentTypeLabel}`;
+    pathEl.textContent = `${universityLabel} / ${facultyLabel} / ${semesterLabel} / ${subjectLabel} / ${contentTypeLabel}`;
 }
 
 function getCardVisual(note) {
@@ -329,6 +343,7 @@ function syncClientFiltersFromURL() {
     const facultyEl = document.getElementById("facultyFilter");
     const subjectEl = document.getElementById("subjectFilter");
     const materialTypeEl = document.getElementById("materialTypeFilter");
+    const universityEl = document.getElementById("universityFilter");
 
     if (searchEl && params.get("search")) {
         searchEl.value = params.get("search") || "";
@@ -348,6 +363,9 @@ function syncClientFiltersFromURL() {
     if (materialTypeEl && params.get("materialType")) {
         materialTypeEl.value = params.get("materialType") || "all";
     }
+    if (universityEl && params.get("university")) {
+        universityEl.value = params.get("university") || "all";
+    }
 
     clientFiltersInitialized = true;
 }
@@ -363,6 +381,7 @@ function syncURLFromClientFilters() {
     const facultyEl = document.getElementById("facultyFilter");
     const subjectEl = document.getElementById("subjectFilter");
     const materialTypeEl = document.getElementById("materialTypeFilter");
+    const universityEl = document.getElementById("universityFilter");
 
     const entries = [
         ["search", searchEl ? searchEl.value.trim() : ""],
@@ -370,7 +389,8 @@ function syncURLFromClientFilters() {
         ["contentType", contentTypeEl ? contentTypeEl.value : "all"],
         ["faculty", facultyEl ? facultyEl.value : "all"],
         ["subject", subjectEl ? subjectEl.value : "all"],
-        ["materialType", materialTypeEl ? materialTypeEl.value : "all"]
+        ["materialType", materialTypeEl ? materialTypeEl.value : "all"],
+        ["university", universityEl ? universityEl.value : "all"]
     ];
 
     entries.forEach(([key, value]) => {
@@ -471,6 +491,7 @@ function renderClient() {
     const semesterSortEl = document.getElementById("semesterSort");
     const subjectEl = document.getElementById("subjectFilter");
     const materialTypeEl = document.getElementById("materialTypeFilter");
+    const universityEl = document.getElementById("universityFilter");
     const countEl = document.getElementById("clientResultCount");
     const loadMoreWrap = document.getElementById("clientLoadMoreWrap");
     const loadMoreBtn = document.getElementById("clientLoadMoreBtn");
@@ -491,12 +512,14 @@ function renderClient() {
     const faculty = facultyEl ? facultyEl.value : "all";
     const semesterSort = semesterSortEl ? semesterSortEl.value : "none";
     const materialType = materialTypeEl ? materialTypeEl.value : "all";
+    const university = universityEl ? universityEl.value : "all";
 
     const branchPool = publicNotes.filter(note => {
         const inSemester = semester === "all" || String(note.semester || 1) === semester;
         const inContentType = contentType === "all" || (note.contentType || "note") === contentType;
         const inFaculty = faculty === "all" || (note.faculty || "others") === faculty;
-        return inSemester && inContentType && inFaculty;
+        const inUniversity = university === "all" || (note.university || "others") === university;
+        return inSemester && inContentType && inFaculty && inUniversity;
     });
 
     const subjectSummaries = computeSubjectSummaries(branchPool);
@@ -508,6 +531,7 @@ function renderClient() {
         semester,
         contentType,
         subject,
+        university,
         materialType
     });
 
@@ -640,6 +664,7 @@ async function handleNoteSubmit(event) {
     const authorEl = document.getElementById("author");
     const facultyEl = document.getElementById("faculty");
     const semesterEl = document.getElementById("semester");
+    const universityEl = document.getElementById("university");
     const visibilityEl = document.getElementById("visibility");
     const descriptionEl = document.getElementById("description");
     const textEl = document.getElementById("textContent");
@@ -656,6 +681,7 @@ async function handleNoteSubmit(event) {
     const contentType = document.getElementById("contentType") ? document.getElementById("contentType").value : "note";
     const faculty = facultyEl ? facultyEl.value : "others";
     const semester = semesterEl ? Number(semesterEl.value || 1) : 1;
+    const university = universityEl ? universityEl.value : "others";
     const visibility = visibilityEl ? visibilityEl.value : "public";
     const description = descriptionEl ? descriptionEl.value.trim() : "";
     const textContent = textEl ? textEl.value.trim() : "";
@@ -738,11 +764,12 @@ async function handleNoteSubmit(event) {
         author,
         contentType,
         faculty,
+        university,
         visibility,
         description,
         textContent,
         textExcerpt: textContent ? textContent.slice(0, 400) : "",
-        searchText: `${title} ${subject} ${author} ${description} ${contentType} ${faculty} ${textContent.slice(0, 600)} ${searchImageText}`,
+        searchText: `${title} ${subject} ${author} ${description} ${contentType} ${faculty} ${university} ${textContent.slice(0, 600)} ${searchImageText}`,
         images,
         imageData: images[0]?.data || "",
         imageName: images[0]?.name || "",
@@ -848,12 +875,13 @@ window.editNote = function (noteId) {
     const facultyEl = document.getElementById("faculty");
     const contentTypeEl = document.getElementById("contentType");
     const semesterEl = document.getElementById("semester");
+    const universityEl = document.getElementById("university");
     const visibilityEl = document.getElementById("visibility");
     const descriptionEl = document.getElementById("description");
     const textEl = document.getElementById("textContent");
     const heading = document.getElementById("formHeading");
 
-    if (!noteIdEl || !titleEl || !subjectEl || !authorEl || !facultyEl || !contentTypeEl || !semesterEl || !visibilityEl || !descriptionEl || !textEl) {
+    if (!noteIdEl || !titleEl || !subjectEl || !authorEl || !facultyEl || !contentTypeEl || !semesterEl || !universityEl || !visibilityEl || !descriptionEl || !textEl) {
         return;
     }
 
@@ -864,6 +892,7 @@ window.editNote = function (noteId) {
     facultyEl.value = note.faculty || "others";
     contentTypeEl.value = note.contentType || "note";
     semesterEl.value = String(note.semester || 1);
+    universityEl.value = note.university || "others";
     visibilityEl.value = note.visibility || "public";
     descriptionEl.value = note.description || "";
     textEl.value = note.textContent || "";
