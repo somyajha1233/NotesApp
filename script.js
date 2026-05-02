@@ -1024,8 +1024,52 @@ function syncActiveClientNavLink() {
     if (target) target.classList.add("nav__link--active");
 }
 
+function setupTypewriter() {
+    const target = document.querySelector("[data-typewriter]");
+    if (!target) return;
+
+    const phrases = (target.getAttribute("data-typewriter") || "")
+        .split("|")
+        .map(value => value.trim())
+        .filter(Boolean);
+
+    if (!phrases.length) return;
+
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let deleting = false;
+
+    const tick = () => {
+        const phrase = phrases[phraseIndex];
+
+        if (deleting) {
+            charIndex = Math.max(0, charIndex - 1);
+        } else {
+            charIndex = Math.min(phrase.length, charIndex + 1);
+        }
+
+        target.textContent = phrase.slice(0, charIndex);
+
+        let delay = deleting ? 70 : 110;
+
+        if (!deleting && charIndex === phrase.length) {
+            deleting = true;
+            delay = 1200;
+        } else if (deleting && charIndex === 0) {
+            deleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+            delay = 250;
+        }
+
+        window.setTimeout(tick, delay);
+    };
+
+    tick();
+}
+
 setupNavigationMenu();
 renderHome();
 renderClient();
 renderAdminNotes();
 syncActiveClientNavLink();
+setupTypewriter();
