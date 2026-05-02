@@ -1,5 +1,6 @@
 const SHELL_FILES = [
     "/index.html",
+    "/contact.html",
     "/client.html",
     "/admin.html",
     "/scanner.html",
@@ -9,15 +10,23 @@ const SHELL_FILES = [
     "/Logo.jpg"
 ];
 
+const CACHE_NAME = "noteshost-shell-v3";
+
 self.addEventListener("install", event => {
     event.waitUntil(
-        caches.open("noteshost-shell-v1").then(cache => cache.addAll(SHELL_FILES))
+        caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_FILES))
     );
     self.skipWaiting();
 });
 
 self.addEventListener("activate", event => {
-    event.waitUntil(self.clients.claim());
+    event.waitUntil(
+        caches.keys().then(names => Promise.all(
+            names
+                .filter(name => name !== CACHE_NAME)
+                .map(name => caches.delete(name))
+        )).then(() => self.clients.claim())
+    );
 });
 
 self.addEventListener("fetch", event => {

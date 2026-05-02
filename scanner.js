@@ -39,6 +39,23 @@ function getSemesterLabel(semester) {
     return `${value}${suffix} Semester`;
 }
 
+function createSlug(title) {
+    return (title || "")
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "note";
+}
+
+function getRouteParams() {
+    const url = new URL(window.location.href);
+    return {
+        noteSlug: url.searchParams.get("slug"),
+        noteId: url.searchParams.get("id")
+    };
+}
+
 function normalizeNote(note) {
     const type = note.type || "";
     const normalized = { ...note };
@@ -102,6 +119,8 @@ function showError(message) {
 function showNote(note) {
     if (!statusEl || !contentEl) return;
 
+    document.title = `${note.title || "Untitled"} - NotesHost`;
+
     statusEl.classList.add("hidden");
     contentEl.classList.remove("hidden");
 
@@ -112,7 +131,6 @@ function showNote(note) {
                 ${images.map((image, index) => `
                     <figure style="margin:0;">
                         <img class="note-thumb" style="max-height:460px; object-fit:contain; background:#fff;" src="${image.data}" alt="${escapeHTML(note.title || "Note Image")} ${index + 1}">
-                        ${image.name ? `<figcaption style="font-size:0.78rem; color:#7a6253; margin-top:0.35rem;">${escapeHTML(image.name)}</figcaption>` : ""}
                     </figure>
                 `).join("")}
             </div>
@@ -159,9 +177,7 @@ function showNote(note) {
 }
 
 async function init() {
-    const url = new URL(window.location.href);
-    const noteSlug = url.searchParams.get("slug");
-    const noteId = url.searchParams.get("id");
+    const { noteSlug, noteId } = getRouteParams();
 
     if (!noteSlug && !noteId) {
         showError("Missing note slug in URL.");

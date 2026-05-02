@@ -58,6 +58,11 @@ function createSlug(title) {
         .replace(/^-+|-+$/g, "") || "note";
 }
 
+function buildNoteHref(note) {
+    const slug = note.slug || createSlug(note.title);
+    return `scanner.html?slug=${encodeURIComponent(slug)}`;
+}
+
 function isPublic(note) {
     return (note.visibility || "public") === "public";
 }
@@ -406,7 +411,7 @@ function syncURLFromClientFilters() {
 
 function buildNoteCard(note, options = {}) {
     const preview = escapeHTML(getNotePreview(note));
-    const noteHref = `scanner.html?slug=${encodeURIComponent(note.slug || createSlug(note.title))}`;
+    const noteHref = buildNoteHref(note);
     const chipsParts = [];
 
     chipsParts.push(`<span class="${getContentTypeClass(note)}">${escapeHTML(getContentTypeLabel(note))}</span>`);
@@ -464,12 +469,12 @@ function renderHome() {
     if (!latestNotes) return;
 
     if (!publicNotesLoaded) {
-        latestNotes.innerHTML = renderSkeletonCards(4);
+        latestNotes.innerHTML = renderSkeletonCards(9);
         return;
     }
 
     const publicNotes = getPublicNotes();
-    const latest = publicNotes.slice(0, 4);
+    const latest = publicNotes.slice(0, 9);
 
     if (totalNotesCount) totalNotesCount.textContent = String(publicNotes.length);
     if (textNotesCount) textNotesCount.textContent = String(publicNotes.filter(note => note.textContent && note.textContent.trim()).length);
