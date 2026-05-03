@@ -1073,3 +1073,43 @@ renderClient();
 renderAdminNotes();
 syncActiveClientNavLink();
 setupTypewriter();
+
+// --- Cookie consent banner (one-time, bottom-left) ---
+(function() {
+    try {
+        var consent = localStorage.getItem('cookieConsent');
+        if (consent) return;
+
+        var banner = document.createElement('div');
+        banner.id = 'cookie-consent-banner';
+        banner.setAttribute('role', 'dialog');
+        banner.setAttribute('aria-live', 'polite');
+        banner.innerHTML = '<div class="cc-inner"><svg class="cc-icon" width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="rgba(196,90,36,0.13)"/><path d="M8 12c0-2 1.5-3.5 3.5-3.5S15 10 15 12s-1.5 3.5-3.5 3.5S8 14 8 12z" fill="rgba(156,66,24,0.95)"/><path d="M13.5 10.5a1 1 0 11-2 0 1 1 0 012 0z" fill="#fff" opacity="0.9"/></svg><div class="cc-text"><p class="cc-message">We use cookies to improve your experience.</p><div class="cc-actions"><button id="cc-accept" class="cc-btn cc-accept">Accept</button><button id="cc-reject" class="cc-btn cc-reject">Reject</button></div></div></div>';
+
+        function mount() {
+            if (!document.body) return setTimeout(mount, 50);
+            document.body.appendChild(banner);
+
+            var accept = document.getElementById('cc-accept');
+            var reject = document.getElementById('cc-reject');
+
+            if (accept) accept.addEventListener('click', function() {
+                localStorage.setItem('cookieConsent', 'accepted');
+                banner.classList.add('cc-hidden');
+            });
+
+            if (reject) reject.addEventListener('click', function() {
+                localStorage.setItem('cookieConsent', 'rejected');
+                banner.classList.add('cc-hidden');
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', mount);
+        } else {
+            mount();
+        }
+    } catch (e) {
+        console.error('Cookie consent banner error:', e);
+    }
+})();

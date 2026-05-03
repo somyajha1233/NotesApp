@@ -1,6 +1,12 @@
 /* ============================================================
    TOKENS
    ============================================================ */
+@font-face {
+  font-family: "Signpainter House Script";
+  src: url("signpainter_housescript.woff2") format("woff2");
+  font-display: swap;
+}
+
 :root {
   --bg:           #f9f6f1;
   --bg-card:      #ffffff;
@@ -97,11 +103,12 @@ img { display: block; max-width: 100%; }
   flex-shrink: 0;
 }
 
-.logo__dot {
-  width: 9px;
-  height: 9px;
+.logo__mark {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
   border-radius: 50%;
-  background: var(--accent);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 0 0 0 4px rgba(196, 90, 36, 0.18);
   flex-shrink: 0;
 }
@@ -394,6 +401,109 @@ img { display: block; max-width: 100%; }
   white-space: nowrap;
 }
 
+.typewriter::after {
+  content: "";
+  display: inline-block;
+  width: 0.08em;
+}
+
+/* Cookie consent banner — compact, elegant glass */
+#cookie-consent-banner {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 99999;
+  max-width: 340px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0.35));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 4px 20px rgba(28,18,9,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  animation: cc-appear 280ms cubic-bezier(.15,.9,.25,1);
+}
+
+.cc-inner {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.7rem;
+}
+
+.cc-icon {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  margin-top: 0.1rem;
+}
+
+.cc-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.cc-message {
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.35;
+  font-weight: 500;
+  margin: 0;
+}
+
+.cc-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.cc-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  border: none;
+  cursor: pointer;
+  transition: all 130ms ease;
+}
+
+.cc-accept {
+  background: var(--accent);
+  color: white;
+}
+
+.cc-accept:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(156,66,24,0.16);
+}
+
+.cc-reject {
+  background: rgba(0,0,0,0.04);
+  color: var(--ink-2);
+}
+
+.cc-reject:hover {
+  background: rgba(0,0,0,0.08);
+}
+
+.cc-hidden {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: all 200ms ease;
+}
+
+@keyframes cc-appear {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 .typewriter::after {
   content: "";
   display: inline-block;
@@ -700,6 +810,35 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.01em;
 }
 
+.chip--university {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.chip--university-tu {
+  background: #ffffff;
+  color: #1c1209;
+  border-color: rgba(28, 18, 9, 0.24);
+}
+
+.chip--university-ku {
+  background: #0f0f10;
+  color: #ffffff;
+  border-color: #0f0f10;
+}
+
+.chip--university-pu {
+  background: #7a4bd6;
+  color: #ffffff;
+  border-color: #6a3fc0;
+}
+
+.chip--university-poun {
+  background: #8b5a2b;
+  color: #ffffff;
+  border-color: #74461f;
+}
+
 .note-title {
   font-family: "Playfair Display", Georgia, serif;
   font-size: 1.25rem;
@@ -894,26 +1033,30 @@ body > *:not(.bg-blob) {
    FOOTER
    ============================================================ */
 .footer {
+  position: relative;
   background: #111008;
   color: rgba(255, 255, 255, 0.75);
   border-radius: 36px 36px 0 0;
   margin-top: 5rem;
   padding: 3.5rem 0 2rem;
+  overflow: hidden;
 }
 
 .footer__inner {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
 }
 
 .footer__top {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
   align-items: start;
   padding-bottom: 2.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .footer__name {
@@ -935,7 +1078,7 @@ body > *:not(.bg-blob) {
 
 .footer__cols {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
   align-items: start;
 }
@@ -962,25 +1105,9 @@ body > *:not(.bg-blob) {
 }
 .footer__links a:hover { color: #fff; }
 
-.footer__action {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-}
-
-/* Footer btn override for dark bg */
-.footer .btn--outline {
-  color: rgba(255, 255, 255, 0.7);
-  border-color: rgba(255, 255, 255, 0.2);
-  background: transparent;
-}
-.footer .btn--outline:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
 .footer__bottom {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -989,10 +1116,21 @@ body > *:not(.bg-blob) {
 }
 
 .footer__team {
-  font-family: "Playfair Display", Georgia, serif;
-  font-style: italic;
-  font-size: 0.9rem;
+  position: absolute;
+  bottom: 0;
+  right: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  font-family: "Signpainter House Script", cursive;
+  font-size: clamp(8rem, 18vw, 16rem);
+  line-height: 0.75;
+  font-weight: 400;
   letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+  white-space: nowrap;
+  width: 200%;
 }
 
 /* ============================================================

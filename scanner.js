@@ -39,6 +39,28 @@ function getSemesterLabel(semester) {
     return `${value}${suffix} Semester`;
 }
 
+function getUniversityChip(university) {
+    const value = (university || "").toLowerCase();
+
+    if (value === "tu") {
+        return { label: "TU", className: "chip chip--university chip--university-tu" };
+    }
+
+    if (value === "ku") {
+        return { label: "KU", className: "chip chip--university chip--university-ku" };
+    }
+
+    if (value === "pu") {
+        return { label: "PU", className: "chip chip--university chip--university-pu" };
+    }
+
+    if (value === "poun") {
+        return { label: "PU", className: "chip chip--university chip--university-poun" };
+    }
+
+    return null;
+}
+
 function createSlug(title) {
     return (title || "")
         .toString()
@@ -155,11 +177,11 @@ function showNote(note) {
     if (facultyVal && facultyVal !== "others") {
         metaParts.push(`<span class="chip">${escapeHTML((note.faculty || "").toUpperCase())}</span>`);
     }
-    const subj = (note.subject || "").trim();
-    if (subj && subj.toLowerCase() !== "computer") {
-        metaParts.push(`<span class="chip">${escapeHTML(subj || "General")}</span>`);
+
+    const universityChip = getUniversityChip(note.university);
+    if (universityChip) {
+        metaParts.push(`<span class="${universityChip.className}">${escapeHTML(universityChip.label)}</span>`);
     }
-    metaParts.push(`<span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>`);
 
     contentEl.innerHTML = `
         <div class="note-meta" style="margin-bottom:0.8rem;">
@@ -168,7 +190,6 @@ function showNote(note) {
         <h1 class="hero-title" style="font-size:2.2rem; margin-bottom:0.5rem;">${escapeHTML(note.title || "Untitled")}</h1>
         <p class="note-preview" style="margin-bottom:0.5rem;">By ${escapeHTML(note.author || "Unknown")} • Updated ${escapeHTML(formatDate(note.updatedAt || note.createdAt))}</p>
         ${note.description ? `<p style="margin-bottom:0.9rem; color:#7a6253;">${escapeHTML(note.description)}</p>` : ""}
-        ${note.thumbnailData ? `<img class="note-thumb" style="max-height:260px; margin-bottom:0.8rem;" src="${note.thumbnailData}" alt="${escapeHTML(note.title || "Thumbnail")}">` : ""}
         ${note.textContent ? `<div class="panel" style="box-shadow:none; background:#fff; border-style:dashed; margin-bottom:0.8rem;"><p style="white-space:pre-wrap;">${escapeHTML(note.textContent)}</p></div>` : ""}
         ${imageBlock}
         ${pdfBlock}
