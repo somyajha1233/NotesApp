@@ -30,6 +30,41 @@ let detachAdminNotes = null;
 let publicNotesLoaded = false;
 let adminNotesLoaded = false;
 
+/* ============================================================
+   SEARCH FORM HANDLERS
+   ============================================================ */
+function initSearchForms() {
+    const heroSearchForm = document.getElementById("heroSearchForm");
+    const latestSearchForm = document.getElementById("latestSearchForm");
+
+    if (heroSearchForm) {
+        heroSearchForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const query = document.getElementById("heroSearchInput")?.value?.trim();
+            if (query) {
+                window.location.href = `client.html?search=${encodeURIComponent(query)}`;
+            }
+        });
+    }
+
+    if (latestSearchForm) {
+        latestSearchForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const query = document.getElementById("latestSearchInput")?.value?.trim();
+            if (query) {
+                window.location.href = `client.html?search=${encodeURIComponent(query)}`;
+            }
+        });
+    }
+}
+
+// Initialize search forms when DOM is ready
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSearchForms);
+} else {
+    initSearchForms();
+}
+
 function escapeHTML(value) {
     return (value || "")
         .toString()
@@ -474,7 +509,7 @@ function renderHome() {
     }
 
     const publicNotes = getPublicNotes();
-    const latest = publicNotes.slice(0, 9);
+    const latest = publicNotes.slice(0, 3);
 
     if (totalNotesCount) totalNotesCount.textContent = String(publicNotes.length);
     if (textNotesCount) textNotesCount.textContent = String(publicNotes.filter(note => note.textContent && note.textContent.trim()).length);
@@ -483,6 +518,15 @@ function renderHome() {
     latestNotes.innerHTML = latest.length
         ? latest.map(note => buildNoteCard(note)).join("")
         : '<p class="notice">No public notes yet. Check back soon for fresh uploads.</p>';
+    
+    const buttonContainer = document.getElementById("latestNotesButton");
+    if (buttonContainer) {
+        if (latest.length) {
+            buttonContainer.innerHTML = '<div style="display: flex; justify-content: center; margin-top: 2rem;"><a href="client.html" class="btn btn--primary">See All Notes</a></div>';
+        } else {
+            buttonContainer.innerHTML = '';
+        }
+    }
 }
 
 function renderClient() {
