@@ -39,6 +39,91 @@ function getSemesterLabel(semester) {
     return `${value}${suffix} Semester`;
 }
 
+function updateMetaTags(note) {
+    const slug = note.slug || createSlug(note.title || "note");
+    const description = (note.description || `${note.subject || "Study"} material for ${getSemesterLabel(note.semester || 1)}`).slice(0, 160);
+    const canonicalUrl = `https://www.somyakumarjha.com.np/scanner.html?slug=${encodeURIComponent(slug)}`;
+    
+    // Update title
+    document.title = `${note.title || "Study Material"} | ${note.subject || "Notes"} — NotesHost`;
+    
+    // Update meta description
+    const metaDescription = document.getElementById("metaDescription");
+    if (metaDescription) metaDescription.content = description;
+    
+    // Update OG tags
+    const ogTitle = document.getElementById("ogTitle");
+    if (ogTitle) ogTitle.content = `${note.title || "Study Material"} | ${note.subject || "Notes"}`;
+    
+    const ogDescription = document.getElementById("ogDescription");
+    if (ogDescription) ogDescription.content = description;
+    
+    const ogUrl = document.getElementById("ogUrl");
+    if (ogUrl) ogUrl.content = canonicalUrl;
+    
+    const ogImage = document.getElementById("ogImage");
+    if (ogImage && note.thumbnailData) {
+        ogImage.content = note.thumbnailData;
+    }
+    
+    // Update Twitter tags
+    const twitterTitle = document.getElementById("twitterTitle");
+    if (twitterTitle) twitterTitle.content = `${note.title || "Study Material"} | ${note.subject || "Notes"}`;
+    
+    const twitterDescription = document.getElementById("twitterDescription");
+    if (twitterDescription) twitterDescription.content = description;
+    
+    // Update canonical link
+    const canonicalLink = document.getElementById("canonicalLink");
+    if (canonicalLink) canonicalLink.href = canonicalUrl;
+}
+
+function updateSchemaMarkup(note) {
+    const slug = note.slug || createSlug(note.title || "note");
+    const canonicalUrl = `https://www.somyakumarjha.com.np/scanner.html?slug=${encodeURIComponent(slug)}`;
+    
+    const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": note.title || "Study Material",
+        "description": note.description || `${note.subject || "Study"} material for ${getSemesterLabel(note.semester || 1)}`,
+        "author": {
+            "@type": "Person",
+            "name": note.author || "Unknown"
+        },
+        "datePublished": new Date(note.createdAt || Date.now()).toISOString().split('T')[0],
+        "dateModified": new Date(note.updatedAt || note.createdAt || Date.now()).toISOString().split('T')[0],
+        "url": canonicalUrl,
+        "educationalLevel": getSemesterLabel(note.semester || 1),
+        "inLanguage": "en-US",
+        "isAccessibleForFree": true,
+        "keywords": [
+            note.subject || "notes",
+            note.faculty || "academics",
+            note.university || "university",
+            "study material",
+            note.contentType || "note"
+        ].filter(Boolean).join(", ")
+    };
+    
+    if (note.thumbnailData) {
+        schemaData.image = note.thumbnailData;
+    }
+    
+    if (note.images && note.images.length) {
+        schemaData.associatedMedia = note.images.map(img => ({
+            "@type": "MediaObject",
+            "url": img.data,
+            "name": img.name || "Study material image"
+        }));
+    }
+    
+    const schemaMarkup = document.getElementById("schemaMarkup");
+    if (schemaMarkup) {
+        schemaMarkup.textContent = JSON.stringify(schemaData, null, 2);
+    }
+}
+
 function getUniversityChip(university) {
     const value = (university || "").toLowerCase();
 
@@ -142,6 +227,10 @@ function showNote(note) {
     if (!statusEl || !contentEl) return;
 
     document.title = `${note.title || "Untitled"} - NotesHost`;
+    
+    // Update all meta tags for SEO
+    updateMetaTags(note);
+    updateSchemaMarkup(note);
 
     statusEl.classList.add("hidden");
     contentEl.classList.remove("hidden");
