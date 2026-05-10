@@ -277,6 +277,15 @@ function getUniversityLabel(university) {
     return "Others";
 }
 
+function getUniversityChipClass(university) {
+    const value = (university || "").toLowerCase();
+    if (value === "tu") return "chip chip--university chip--university-tu";
+    if (value === "ku") return "chip chip--university chip--university-ku";
+    if (value === "pu") return "chip chip--university chip--university-pu";
+    if (value === "poun") return "chip chip--university chip--university-poun";
+    return "chip chip--university";
+}
+
 function normalizeSubject(subject) {
     return (subject || "").toString().trim().toLowerCase();
 }
@@ -381,8 +390,6 @@ function syncClientFiltersFromURL() {
     const semesterEl = document.getElementById("semesterFilter");
     const contentTypeEl = document.getElementById("contentTypeFilter");
     const facultyEl = document.getElementById("facultyFilter");
-    const subjectEl = document.getElementById("subjectFilter");
-    const materialTypeEl = document.getElementById("materialTypeFilter");
     const universityEl = document.getElementById("universityFilter");
 
     if (searchEl && params.get("search")) {
@@ -396,12 +403,6 @@ function syncClientFiltersFromURL() {
     }
     if (facultyEl && params.get("faculty")) {
         facultyEl.value = params.get("faculty") || "all";
-    }
-    if (subjectEl && params.get("subject")) {
-        subjectEl.value = params.get("subject") || "all";
-    }
-    if (materialTypeEl && params.get("materialType")) {
-        materialTypeEl.value = params.get("materialType") || "all";
     }
     if (universityEl && params.get("university")) {
         universityEl.value = params.get("university") || "all";
@@ -419,8 +420,6 @@ function syncURLFromClientFilters() {
     const semesterEl = document.getElementById("semesterFilter");
     const contentTypeEl = document.getElementById("contentTypeFilter");
     const facultyEl = document.getElementById("facultyFilter");
-    const subjectEl = document.getElementById("subjectFilter");
-    const materialTypeEl = document.getElementById("materialTypeFilter");
     const universityEl = document.getElementById("universityFilter");
 
     const entries = [
@@ -428,8 +427,6 @@ function syncURLFromClientFilters() {
         ["semester", semesterEl ? semesterEl.value : "all"],
         ["contentType", contentTypeEl ? contentTypeEl.value : "all"],
         ["faculty", facultyEl ? facultyEl.value : "all"],
-        ["subject", subjectEl ? subjectEl.value : "all"],
-        ["materialType", materialTypeEl ? materialTypeEl.value : "all"],
         ["university", universityEl ? universityEl.value : "all"]
     ];
 
@@ -456,9 +453,12 @@ function buildNoteCard(note, options = {}) {
         chipsParts.push(`<span class="chip">${escapeHTML(getFacultyLabel(note.faculty))}</span>`);
     }
 
-    chipsParts.push(`<span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>`);
+    if (!options.admin) {
+        chipsParts.push(`<span class="${getUniversityChipClass(note.university)}">${escapeHTML(getUniversityLabel(note.university))}</span>`);
+    }
 
     if (options.admin) {
+        chipsParts.push(`<span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>`);
         chipsParts.push(`<span class="chip">${escapeHTML(getNoteKind(note))}</span>`);
         chipsParts.push(`<span class="chip">${escapeHTML(note.visibility || "public")}</span>`);
     }
@@ -537,9 +537,6 @@ function renderClient() {
     const semesterEl = document.getElementById("semesterFilter");
     const contentTypeEl = document.getElementById("contentTypeFilter");
     const facultyEl = document.getElementById("facultyFilter");
-    const semesterSortEl = document.getElementById("semesterSort");
-    const subjectEl = document.getElementById("subjectFilter");
-    const materialTypeEl = document.getElementById("materialTypeFilter");
     const universityEl = document.getElementById("universityFilter");
     const countEl = document.getElementById("clientResultCount");
     const loadMoreWrap = document.getElementById("clientLoadMoreWrap");
@@ -559,8 +556,6 @@ function renderClient() {
     const semester = semesterEl ? semesterEl.value : "all";
     const contentType = contentTypeEl ? contentTypeEl.value : "all";
     const faculty = facultyEl ? facultyEl.value : "all";
-    const semesterSort = semesterSortEl ? semesterSortEl.value : "none";
-    const materialType = materialTypeEl ? materialTypeEl.value : "all";
     const university = universityEl ? universityEl.value : "all";
 
     const branchPool = publicNotes.filter(note => {
@@ -572,33 +567,22 @@ function renderClient() {
     });
 
     const subjectSummaries = computeSubjectSummaries(branchPool);
-    updateSubjectFilterOptions(subjectSummaries);
-    const subject = subjectEl ? (subjectEl.value || "all") : "all";
 
     renderBranchPath(subjectSummaries, {
         faculty,
         semester,
         contentType,
-        subject,
-        university,
-        materialType
+        subject: "all",
+        university
     });
 
     const filtered = branchPool.filter(note => {
         const searchable = (note.searchText || `${note.title || ""} ${note.subject || ""} ${note.author || ""} ${note.description || ""} ${note.contentType || ""} ${note.faculty || ""}`).toLowerCase();
         const inSearch = !search || searchable.includes(search);
-        const inSubject = subject === "all" || normalizeSubject(note.subject) === subject;
-        const inMaterialType = matchesMaterialType(note, materialType);
-        return inSearch && inSubject && inMaterialType;
+        return inSearch;
     });
 
     filtered.sort((a, b) => {
-        if (semesterSort !== "none") {
-            const aSem = Number(a.semester || 1);
-            const bSem = Number(b.semester || 1);
-            if (aSem !== bSem) return semesterSort === "asc" ? aSem - bSem : bSem - aSem;
-        }
-
         return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
     });
 

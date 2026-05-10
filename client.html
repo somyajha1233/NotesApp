@@ -56,7 +56,7 @@
             </div>
 
             <div class="toolbar">
-                <div class="field" style="flex:1; min-width:220px;">
+                <div class="field toolbar__search" style="min-width:220px;">
                     <label for="searchInput">Search</label>
                     <input id="searchInput" type="text" placeholder="Search notes, question papers, author"
                         oninput="filterClientNotes()">
@@ -101,29 +101,6 @@
                         <option value="ku">Kathmandu University</option>
                         <option value="pu">Purbanchal University</option>
                         <option value="poun">Pokhara University</option>
-                    </select>
-                </div>
-                <div class="field" style="min-width:160px;">
-                    <label for="semesterSort">Sort Semester</label>
-                    <select id="semesterSort" onchange="filterClientNotes()">
-                        <option value="none">No sort</option>
-                        <option value="asc">Low to High</option>
-                        <option value="desc">High to Low</option>
-                    </select>
-                </div>
-                <div class="field" style="min-width:220px;">
-                    <label for="subjectFilter">Subject</label>
-                    <select id="subjectFilter" onchange="filterClientNotes()">
-                        <option value="all">All subjects</option>
-                    </select>
-                </div>
-                <div class="field" style="min-width:180px;">
-                    <label for="materialTypeFilter">Material Type</label>
-                    <select id="materialTypeFilter" onchange="filterClientNotes()">
-                        <option value="all">All material</option>
-                        <option value="text">Text</option>
-                        <option value="pdf">PDF</option>
-                        <option value="image">Images</option>
                     </select>
                 </div>
             </div>

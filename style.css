@@ -688,13 +688,14 @@ img { display: block; max-width: 100%; }
 
 .hero-welcome {
   text-align: center;
-  padding: 3.5rem 1.5rem;
+  padding: 3rem 1.5rem 2.75rem;
 }
 
 .welcome-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.45rem;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -707,13 +708,20 @@ img { display: block; max-width: 100%; }
   margin-bottom: 1rem;
 }
 
+.welcome-badge__icon {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+  flex: 0 0 auto;
+}
+
 .hero-title {
   font-family: "Playfair Display", Georgia, serif;
   font-size: clamp(2.2rem, 5vw, 3.4rem);
   line-height: 1.05;
   letter-spacing: -0.03em;
   color: var(--ink);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .hero-welcome p {
@@ -727,7 +735,7 @@ img { display: block; max-width: 100%; }
   gap: 0.75rem;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
 }
 
 /* Info card — right side */
@@ -1086,16 +1094,24 @@ textarea {
 }
 
 .toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
   gap: 0.6rem;
   margin-bottom: 1.25rem;
 }
 .toolbar .field { margin: 0; }
 
+.toolbar .toolbar__search {
+  grid-column: 1 / -1;
+}
+
+.toolbar .toolbar__search input {
+  width: 100%;
+}
+
 .toolbar .field {
-  flex: 1 1 180px;
+  min-width: 0;
 }
 
 .branch-path {
@@ -1588,9 +1604,8 @@ body > *:not(.bg-blob) {
 
   .row { grid-template-columns: 1fr; }
 
-  .toolbar .field {
-    flex-basis: 100%;
-    min-width: 0 !important;
+  .toolbar {
+    grid-template-columns: 1fr;
   }
 
   .toolbar .field input,

@@ -38,7 +38,12 @@
 
     <main class="container">
         <section class="hero panel hero-welcome">
-            <span class="welcome-badge">404</span>
+            <span class="welcome-badge" aria-label="Page not found">
+                <svg class="welcome-badge__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 3 2.75 19h18.5L12 3Zm0 5.1c.55 0 1 .45 1 1V13a1 1 0 1 1-2 0V9.1c0-.55.45-1 1-1Zm0 8.9a1.1 1.1 0 1 1 0-2.2 1.1 1.1 0 0 1 0 2.2Z"></path>
+                </svg>
+                404
+            </span>
             <h1 class="hero-title">This page could not be found.</h1>
             <p>
                 The note or route you were looking for doesn’t exist or has been moved.
