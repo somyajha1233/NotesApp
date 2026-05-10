@@ -241,7 +241,7 @@ function showNote(note) {
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.85rem; margin-bottom:0.8rem;">
                 ${images.map((image, index) => `
                     <figure style="margin:0;">
-                        <img class="note-thumb" style="max-height:460px; object-fit:contain; background:#fff;" src="${image.data}" alt="${escapeHTML(note.title || "Note Image")} ${index + 1}">
+                        <img class="note-thumb" loading="lazy" decoding="async" style="max-height:460px; object-fit:contain; background:#fff;" src="${image.data}" alt="${escapeHTML(note.title || "Note Image")} ${index + 1}">
                     </figure>
                 `).join("")}
             </div>

@@ -10,7 +10,17 @@ const SHELL_FILES = [
     "/Logo.jpg"
 ];
 
-const CACHE_NAME = "noteshost-shell-v3";
+const CACHE_NAME = "noteshost-shell-v4";
+const CDN_CACHE_NAME = "noteshost-cdn-v1";
+const CDN_PATTERNS = [
+    "https://fonts.googleapis.com/",
+    "https://fonts.gstatic.com/",
+    "https://www.gstatic.com/firebasejs/"
+];
+
+function isCdnRequest(request) {
+    return CDN_PATTERNS.some(pattern => request.url.startsWith(pattern));
+}
 
 self.addEventListener("install", event => {
     event.waitUntil(
@@ -33,6 +43,22 @@ self.addEventListener("fetch", event => {
     const request = event.request;
 
     if (request.method !== "GET") return;
+
+    if (isCdnRequest(request)) {
+        event.respondWith(
+            caches.open(CDN_CACHE_NAME).then(cache =>
+                cache.match(request).then(cached => {
+                    if (cached) return cached;
+
+                    return fetch(request).then(response => {
+                        cache.put(request, response.clone());
+                        return response;
+                    });
+                })
+            )
+        );
+        return;
+    }
 
     event.respondWith(
         caches.match(request).then(cached => {

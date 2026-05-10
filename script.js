@@ -193,6 +193,48 @@ function readFileAsDataURL(file) {
     });
 }
 
+async function compressImageFile(file, { maxDimension = 1600, quality = 0.8 } = {}) {
+    const sourceUrl = URL.createObjectURL(file);
+
+    try {
+        const image = await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error("Unable to load image file."));
+            img.src = sourceUrl;
+        });
+
+        const width = image.naturalWidth || image.width;
+        const height = image.naturalHeight || image.height;
+        const scale = Math.min(1, maxDimension / Math.max(width, height));
+        const targetWidth = Math.max(1, Math.round(width * scale));
+        const targetHeight = Math.max(1, Math.round(height * scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+
+        const context = canvas.getContext("2d");
+        if (!context) {
+            throw new Error("Unable to process image file.");
+        }
+
+        context.drawImage(image, 0, 0, targetWidth, targetHeight);
+
+        return canvas.toDataURL("image/webp", quality);
+    } finally {
+        URL.revokeObjectURL(sourceUrl);
+    }
+}
+
+async function readCompressedImageAsDataURL(file, options) {
+    try {
+        return await compressImageFile(file, options);
+    } catch (error) {
+        return readFileAsDataURL(file);
+    }
+}
+
 function createStorageSafeName(fileName = "file") {
     return fileName
         .toString()
@@ -742,7 +784,7 @@ async function handleNoteSubmit(event) {
         }
         try {
             const imageEntries = await Promise.all(imageFiles.map(async file => ({
-                data: await readFileAsDataURL(file),
+                data: await readCompressedImageAsDataURL(file, { maxDimension: 1600, quality: 0.8 }),
                 name: file.name
             })));
             images = existing && imageFiles.length ? imageEntries : imageEntries;
@@ -774,7 +816,7 @@ async function handleNoteSubmit(event) {
             return;
         }
         try {
-            thumbnailData = await readFileAsDataURL(thumbFile);
+            thumbnailData = await readCompressedImageAsDataURL(thumbFile, { maxDimension: 1200, quality: 0.78 });
         } catch (error) {
             showAdminMessage(error.message || "Failed to read thumbnail file.", true);
             return;
