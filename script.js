@@ -495,15 +495,7 @@ function buildNoteCard(note, options = {}) {
         chipsParts.push(`<span class="chip">${escapeHTML(getFacultyLabel(note.faculty))}</span>`);
     }
 
-    if (!options.admin) {
-        chipsParts.push(`<span class="${getUniversityChipClass(note.university)}">${escapeHTML(getUniversityLabel(note.university))}</span>`);
-    }
-
-    if (options.admin) {
-        chipsParts.push(`<span class="chip">${escapeHTML(getSemesterLabel(note.semester || 1))}</span>`);
-        chipsParts.push(`<span class="chip">${escapeHTML(getNoteKind(note))}</span>`);
-        chipsParts.push(`<span class="chip">${escapeHTML(note.visibility || "public")}</span>`);
-    }
+    chipsParts.push(`<span class="${getUniversityChipClass(note.university)}">${escapeHTML(getUniversityLabel(note.university))}</span>`);
 
     const chips = `
         <div class="note-meta">

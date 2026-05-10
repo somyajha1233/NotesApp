@@ -1312,11 +1312,12 @@ body > *:not(.bg-blob) {
   transform: translateX(-50%);
   z-index: 0;
   font-family: "Signpainter House Script", cursive;
-  font-size: clamp(8rem, 18vw, 16rem);
+  font-size: clamp(6rem, 14vw, 12rem);
   line-height: 0.75;
   font-weight: 400;
   letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.09);
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.16);
   pointer-events: none;
   white-space: nowrap;
   width: max-content;
@@ -1639,7 +1640,8 @@ body > *:not(.bg-blob) {
     bottom: 0.15rem;
     transform: translateX(-50%);
     width: calc(100% - 1.5rem);
-    font-size: clamp(2.75rem, 11vw, 4.25rem);
+    font-size: clamp(2rem, 10vw, 3.25rem);
+    margin-bottom: 0;
     line-height: 0.9;
     letter-spacing: 0.01em;
     white-space: nowrap;

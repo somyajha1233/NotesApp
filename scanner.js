@@ -42,7 +42,7 @@ function getSemesterLabel(semester) {
 function updateMetaTags(note) {
     const slug = note.slug || createSlug(note.title || "note");
     const description = (note.description || `${note.subject || "Study"} material for ${getSemesterLabel(note.semester || 1)}`).slice(0, 160);
-    const canonicalUrl = `https://www.somyakumarjha.com.np/${encodeURIComponent(slug)}`;
+    const canonicalUrl = `https://www.somyakumarjha.com.np/scanner.html?slug=${encodeURIComponent(slug)}`;
     
     // Update title
     document.title = `${note.title || "Study Material"} | ${note.subject || "Notes"} — NotesHost`;
@@ -80,7 +80,7 @@ function updateMetaTags(note) {
 
 function updateSchemaMarkup(note) {
     const slug = note.slug || createSlug(note.title || "note");
-    const canonicalUrl = `https://www.somyakumarjha.com.np/${encodeURIComponent(slug)}`;
+    const canonicalUrl = `https://www.somyakumarjha.com.np/scanner.html?slug=${encodeURIComponent(slug)}`;
     
     const schemaData = {
         "@context": "https://schema.org",
@@ -157,26 +157,10 @@ function createSlug(title) {
 
 function getRouteParams() {
     const url = new URL(window.location.href);
-    
-    // Check query parameters first (for backward compatibility)
-    const slugParam = url.searchParams.get("slug");
-    const idParam = url.searchParams.get("id");
-    
-    if (slugParam || idParam) {
-        return { noteSlug: slugParam, noteId: idParam };
-    }
-    
-    // Extract slug from URL path (e.g., /tribhuvan-university)
-    const pathname = url.pathname;
-    const pathSegments = pathname.split('/').filter(Boolean);
-    const lastSegment = pathSegments[pathSegments.length - 1];
-    
-    // Only treat as slug if it's not a known page name
-    if (lastSegment && lastSegment !== "scanner.html" && lastSegment !== "index.html" && lastSegment !== "client.html" && lastSegment !== "admin.html" && lastSegment !== "contact.html" && lastSegment !== "404.html") {
-        return { noteSlug: decodeURIComponent(lastSegment), noteId: null };
-    }
-    
-    return { noteSlug: null, noteId: null };
+    return {
+        noteSlug: url.searchParams.get("slug"),
+        noteId: url.searchParams.get("id")
+    };
 }
 
 function normalizeNote(note) {
